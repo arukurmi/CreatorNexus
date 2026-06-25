@@ -22,7 +22,7 @@ export default function Header() {
           </span>
           <div className="flex flex-col leading-none">
             <span className="text-base font-bold tracking-tight text-foreground">
-              InstaBucket
+              Creator Nexus
             </span>
             <span className="text-[10px] font-medium uppercase tracking-widest text-primary/70">
               Greatest Of All Time Influencers

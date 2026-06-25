@@ -9,7 +9,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'InstaBucket — Influencer Budget Allocator',
+  title: 'Creator Nexus — Influencer Budget Allocator',
   description:
     'Find the perfect mix of micro and nano-influencers for your D2C brand budget.',
 }

@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* ── Organic Indie theme (Tailwind v4 @theme) ───────────────────────────── */
+@theme {
+  --color-background: #FDFBF7;
+  --color-foreground: #1F2937;
+
+  --color-primary: #E2725B;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-secondary: #C5E1A5;
+  --color-secondary-foreground: #1F2937;
+
+  --color-muted: #F3F0EA;
+  --color-border: #E8E3DA;
+
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
+
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  --shadow-soft: 0 2px 16px 0 rgba(31, 41, 55, 0.07);
+  --shadow-card: 0 4px 24px 0 rgba(31, 41, 55, 0.10);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F0EA;
+}
+::-webkit-scrollbar-thumb {
+  background: #C5E1A5;
+  border-radius: 3px;
+}

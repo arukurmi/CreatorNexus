@@ -1,208 +1,91 @@
-import { Influencer } from './types'
+import { Influencer, Niche, Tier } from './types'
 
-export const MOCK_INFLUENCERS: Influencer[] = [
-  // ── PETS ──────────────────────────────────────────────────────────────────
-  {
-    id: 'p1',
-    handle: '@pawsandpurrs',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=pawsandpurrs',
-    followers: 48000,
-    avg_views: 22000,
-    engagement_rate: 0.072,
-    estimated_cost: 3200,
-    niche: 'pets',
-  },
-  {
-    id: 'p2',
-    handle: '@delhidogmom',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=delhidogmom',
-    followers: 91000,
-    avg_views: 38000,
-    engagement_rate: 0.054,
-    estimated_cost: 7500,
-    niche: 'pets',
-  },
-  {
-    id: 'p3',
-    handle: '@meowmumbai',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=meowmumbai',
-    followers: 12000,
-    avg_views: 8500,
-    engagement_rate: 0.091,
-    estimated_cost: 1100,
-    niche: 'pets',
-  },
-  {
-    id: 'p4',
-    handle: '@bengalurupets',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=bengalurupets',
-    followers: 27000,
-    avg_views: 14000,
-    engagement_rate: 0.068,
-    estimated_cost: 2400,
-    niche: 'pets',
-  },
-  {
-    id: 'p5',
-    handle: '@fluffychennai',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=fluffychennai',
-    followers: 6500,
-    avg_views: 5200,
-    engagement_rate: 0.108,
-    estimated_cost: 600,
-    niche: 'pets',
-  },
-  // ── FASHION ───────────────────────────────────────────────────────────────
-  {
-    id: 'f1',
-    handle: '@streetweardelhi',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=streetweardelhi',
-    followers: 73000,
-    avg_views: 45000,
-    engagement_rate: 0.061,
-    estimated_cost: 6800,
-    niche: 'fashion',
-  },
-  {
-    id: 'f2',
-    handle: '@indiesaree',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=indiesaree',
-    followers: 34000,
-    avg_views: 19000,
-    engagement_rate: 0.083,
-    estimated_cost: 3900,
-    niche: 'fashion',
-  },
-  {
-    id: 'f3',
-    handle: '@nanofashionpune',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=nanofashionpune',
-    followers: 8200,
-    avg_views: 6100,
-    engagement_rate: 0.112,
-    estimated_cost: 750,
-    niche: 'fashion',
-  },
-  {
-    id: 'f4',
-    handle: '@thriftbangalore',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=thriftbangalore',
-    followers: 19500,
-    avg_views: 12000,
-    engagement_rate: 0.079,
-    estimated_cost: 1850,
-    niche: 'fashion',
-  },
-  {
-    id: 'f5',
-    handle: '@hydrabadzindagi',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=hydrabadzindagi',
-    followers: 55000,
-    avg_views: 31000,
-    engagement_rate: 0.058,
-    estimated_cost: 5200,
-    niche: 'fashion',
-  },
-  // ── FOOD ──────────────────────────────────────────────────────────────────
-  {
-    id: 'fo1',
-    handle: '@chaiandchaos',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=chaiandchaos',
-    followers: 41000,
-    avg_views: 28000,
-    engagement_rate: 0.077,
-    estimated_cost: 4100,
-    niche: 'food',
-  },
-  {
-    id: 'fo2',
-    handle: '@streetbhelpuri',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=streetbhelpuri',
-    followers: 15000,
-    avg_views: 11000,
-    engagement_rate: 0.094,
-    estimated_cost: 1400,
-    niche: 'food',
-  },
-  {
-    id: 'fo3',
-    handle: '@homechefhyb',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=homechefhyb',
-    followers: 9800,
-    avg_views: 7200,
-    engagement_rate: 0.103,
-    estimated_cost: 900,
-    niche: 'food',
-  },
-  {
-    id: 'fo4',
-    handle: '@biryanibabes',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=biryanibabes',
-    followers: 62000,
-    avg_views: 42000,
-    engagement_rate: 0.067,
-    estimated_cost: 5900,
-    niche: 'food',
-  },
-  {
-    id: 'fo5',
-    handle: '@veganmumbaikitchen',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=veganmumbaikitchen',
-    followers: 23000,
-    avg_views: 16500,
-    engagement_rate: 0.085,
-    estimated_cost: 2200,
-    niche: 'food',
-  },
-  // ── FITNESS ───────────────────────────────────────────────────────────────
-  {
-    id: 'fit1',
-    handle: '@yogawithananya',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=yogawithananya',
-    followers: 88000,
-    avg_views: 52000,
-    engagement_rate: 0.059,
-    estimated_cost: 8200,
-    niche: 'fitness',
-  },
-  {
-    id: 'fit2',
-    handle: '@gymratpune',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=gymratpune',
-    followers: 31000,
-    avg_views: 18000,
-    engagement_rate: 0.076,
-    estimated_cost: 3100,
-    niche: 'fitness',
-  },
-  {
-    id: 'fit3',
-    handle: '@runningwithrohan',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=runningwithrohan',
-    followers: 14000,
-    avg_views: 9500,
-    engagement_rate: 0.088,
-    estimated_cost: 1300,
-    niche: 'fitness',
-  },
-  {
-    id: 'fit4',
-    handle: '@nanofit_delhi',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=nanofit_delhi',
-    followers: 5800,
-    avg_views: 4200,
-    engagement_rate: 0.119,
-    estimated_cost: 550,
-    niche: 'fitness',
-  },
-  {
-    id: 'fit5',
-    handle: '@pilatesbypriya',
-    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=pilatesbypriya',
-    followers: 47000,
-    avg_views: 27000,
-    engagement_rate: 0.071,
-    estimated_cost: 4700,
-    niche: 'fitness',
-  },
-]
+// ── Deterministic pseudo-random so the dataset is stable across renders ──────
+function seeded(str: string): () => number {
+  let h = 1779033703 ^ str.length
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353)
+    h = (h << 13) | (h >>> 19)
+  }
+  return () => {
+    h = Math.imul(h ^ (h >>> 16), 2246822507)
+    h = Math.imul(h ^ (h >>> 13), 3266489909)
+    h ^= h >>> 16
+    return (h >>> 0) / 4294967296
+  }
+}
+
+const round = (n: number, step: number) => Math.round(n / step) * step
+
+// Followers per tier (so every niche has nano + micro + macro for its buckets)
+const TIER_RANGES: Record<Tier, [number, number]> = {
+  nano: [2_000, 9_500],
+  micro: [12_000, 95_000],
+  macro: [120_000, 650_000],
+}
+
+// Engagement is highest for nano, lowest for macro
+const ENGAGEMENT_RANGES: Record<Tier, [number, number]> = {
+  nano: [0.08, 0.13],
+  micro: [0.05, 0.09],
+  macro: [0.03, 0.06],
+}
+
+function buildInfluencer(handle: string, niche: Niche, tier: Tier): Influencer {
+  const rand = seeded(handle)
+
+  const [fMin, fMax] = TIER_RANGES[tier]
+  const followers = round(fMin + rand() * (fMax - fMin), 500)
+
+  const [eMin, eMax] = ENGAGEMENT_RANGES[tier]
+  const engagement_rate = Math.round((eMin + rand() * (eMax - eMin)) * 1000) / 1000
+
+  // Recent reels typically reach 40–80% of followers
+  const avg_views = round(followers * (0.4 + rand() * 0.4), 100)
+
+  // Anchor price from reach + engagement, then a believable min–max spread
+  const anchor = followers * 0.04 + (avg_views / 10) * 0.1 + engagement_rate * 8000
+  const cost_min = Math.max(300, round(anchor * 0.8, 100))
+  const cost_max = round(anchor * (1.4 + rand() * 0.4), 100)
+
+  return {
+    id: `${niche}-${handle.replace(/^@/, '')}`,
+    handle,
+    avatar_url: `https://api.dicebear.com/7.x/thumbs/svg?seed=${handle.replace(/^@/, '')}`,
+    followers,
+    avg_views,
+    engagement_rate,
+    cost_min,
+    cost_max,
+    niche,
+  }
+}
+
+// Themed handle pools — 3 nano, 3 micro, 1 macro per niche
+const HANDLES: Record<Niche, string[]> = {
+  pets: ['@fluffychennai', '@meowmumbai', '@pawsofpune', '@bengalurupets', '@delhidoggos', '@thecatcafeblr', '@indianpetparent'],
+  fashion: ['@nanofitpune', '@thriftwithtara', '@desistreetstyle', '@indiesareestory', '@mumbaiminimal', '@streetweardelhi', '@voguebyvani'],
+  beauty: ['@glowwithgia', '@skinbynisha', '@kajalandco', '@desiglowup', '@beautybybhavna', '@theglossguide', '@makeupbymaya'],
+  food: ['@homechefhyb', '@bhelpurigirl', '@chaiandchaos', '@veganmumbaikitchen', '@streetfoodsaga', '@biryanibabes', '@thefoodieflick'],
+  fitness: ['@nanofitdelhi', '@runningwithrohan', '@yogawithaditi', '@gymratpune', '@fitfambangalore', '@pilatesbypriya', '@theshreddedsardar'],
+  travel: ['@offbeatodisha', '@backpackbabu', '@hillsofhimachal', '@nomadicnaina', '@wanderwithwasim', '@trainsofindia', '@theglobetrottergal'],
+  tech: ['@gadgetgully', '@codewithkabir', '@desitechie', '@aiwithanmol', '@unboxbyutsav', '@thegizmoguru', '@techtuesdays'],
+  gaming: ['@bgmiwithbholu', '@noobtoprorgaming', '@queenofkills', '@valorantvikram', '@indiangamergirl', '@streamersahil', '@thegamingadda'],
+  parenting: ['@momof2mumbai', '@dadjokesdelhi', '@raisingrhea', '@thedesimomdiary', '@toddlertalesblr', '@newmomnotes', '@theparentingpro'],
+  finance: ['@paisawithpriya', '@stocksforstudents', '@sipsavvy', '@desifinanceguy', '@cryptochaiwala', '@budgetbabaa', '@themoneymentor'],
+  home: ['@tinyflatbig', '@declutterdiaries', '@plantsofpune', '@homewithhaya', '@diydecordivya', '@therentedhome', '@interiorinsider'],
+  sustainability: ['@zerowastezoya', '@thrifteddreams', '@ecowithesha', '@plasticfreepune', '@slowfashionsana', '@greenwithgaurav', '@sustainabledesi'],
+  education: ['@upscwithuma', '@learnwithlavanya', '@historyhungama', '@scienceforsanya', '@codeclasses', '@examtipsdaily', '@theknowledgenest'],
+  comedy: ['@sketchysandeep', '@relatablerimi', '@officehumourhq', '@desimemequeen', '@standupsimran', '@potatoechips', '@thecomedycorner'],
+}
+
+function buildNiche(niche: Niche): Influencer[] {
+  const handles = HANDLES[niche]
+  // 3 nano, 3 micro, 1 macro
+  const tiers: Tier[] = ['nano', 'nano', 'nano', 'micro', 'micro', 'micro', 'macro']
+  return handles.map((handle, i) => buildInfluencer(handle, niche, tiers[i]))
+}
+
+export const MOCK_INFLUENCERS: Influencer[] = (
+  Object.keys(HANDLES) as Niche[]
+).flatMap((niche) => buildNiche(niche))

@@ -1,8 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Eye, Heart, Users, IndianRupee } from 'lucide-react'
+import { Eye, Heart, Users, IndianRupee, ExternalLink, Check } from 'lucide-react'
 import { Influencer } from '@/lib/types'
+import { getTier, TIER_META } from '@/lib/tier'
+import { instagramUrl } from '@/lib/instagram'
 
 interface Props {
   influencer: Influencer
@@ -15,41 +17,60 @@ function formatNumber(n: number): string {
   return String(n)
 }
 
+function formatINR(n: number): string {
+  return `₹${Math.round(n).toLocaleString('en-IN')}`
+}
+
 export default function InfluencerCard({ influencer, isSelected }: Props) {
-  const { handle, avatar_url, followers, avg_views, engagement_rate, estimated_cost } =
-    influencer
+  const {
+    handle,
+    avatar_url,
+    followers,
+    avg_views,
+    engagement_rate,
+    cost_min,
+    cost_max,
+  } = influencer
+  const tier = getTier(followers)
+  const tierMeta = TIER_META[tier]
 
   return (
     <motion.div
       layout
-      layoutId={influencer.id}
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       className={`shadow-card relative rounded-2xl bg-white/70 p-5 ring-1 backdrop-blur-sm transition-colors duration-300 ${
-        isSelected
-          ? 'ring-2 ring-primary/70'
-          : 'ring-border/50 hover:ring-border'
+        isSelected ? 'ring-2 ring-primary/70' : 'ring-border/50 hover:ring-border'
       }`}
     >
-      {/* Selected badge */}
-      {isSelected && (
-        <span className="absolute right-3 top-3 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-          Selected
+      {/* Top row: tier badge + Instagram link */}
+      <div className="mb-3 flex items-center justify-between">
+        <span
+          className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${tierMeta.badge}`}
+          title={tierMeta.range}
+        >
+          {tierMeta.emoji} {tierMeta.label}
         </span>
-      )}
+        <a
+          href={instagramUrl(handle)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open ${handle} on Instagram`}
+          title="Open on Instagram"
+          className="flex h-7 w-7 items-center justify-center rounded-full text-foreground/40 transition hover:bg-muted hover:text-primary"
+        >
+          <ExternalLink className="h-4 w-4" />
+        </a>
+      </div>
 
       {/* Avatar + handle */}
       <div className="mb-4 flex items-center gap-3">
         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-muted ring-2 ring-secondary/60">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={avatar_url}
-            alt={handle}
-            className="h-full w-full object-cover"
-          />
+          <img src={avatar_url} alt={handle} className="h-full w-full object-cover" />
         </div>
-        <div>
-          <p className="font-bold text-foreground">{handle}</p>
+        <div className="min-w-0">
+          <p className="truncate font-bold text-foreground">{handle}</p>
           <p className="text-xs text-foreground/50">
             {(engagement_rate * 100).toFixed(1)}% engagement
           </p>
@@ -75,14 +96,24 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
         />
       </div>
 
-      {/* Estimated cost */}
+      {/* Cost range */}
       <div className="flex items-center justify-between rounded-xl bg-muted/60 px-4 py-2.5">
-        <span className="text-xs font-medium text-foreground/50">Est. Cost</span>
+        <span className="text-xs font-medium text-foreground/50">Quote range</span>
         <div className="flex items-center gap-0.5 font-bold text-primary">
           <IndianRupee className="h-3.5 w-3.5" />
-          <span>{Math.round(estimated_cost).toLocaleString('en-IN')}</span>
+          <span>
+            {formatINR(cost_min).replace('₹', '')} – {formatINR(cost_max).replace('₹', '')}
+          </span>
         </div>
       </div>
+
+      {/* In-bucket marker */}
+      {isSelected && (
+        <div className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-primary/10 py-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
+          <Check className="h-3.5 w-3.5" />
+          In your bucket
+        </div>
+      )}
     </motion.div>
   )
 }

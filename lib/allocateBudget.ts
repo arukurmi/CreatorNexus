@@ -1,8 +1,8 @@
 import { Influencer, BucketResult } from './types'
 
-function computeCost(influencer: Influencer): number {
-  if (influencer.estimated_cost > 0) return influencer.estimated_cost
-  return influencer.followers * 0.05 + (influencer.avg_views / 10) * 0.1
+// A creator's quote is a range; we budget on the midpoint of that range.
+export function influencerCost(influencer: Influencer): number {
+  return (influencer.cost_min + influencer.cost_max) / 2
 }
 
 export function allocateBudget(
@@ -17,9 +17,9 @@ export function allocateBudget(
   let spent = 0
 
   for (const influencer of sorted) {
-    const cost = computeCost(influencer)
+    const cost = influencerCost(influencer)
     if (spent + cost <= targetBudget) {
-      selected.push({ ...influencer, estimated_cost: cost })
+      selected.push(influencer)
       spent += cost
     }
   }

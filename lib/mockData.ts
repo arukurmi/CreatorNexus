@@ -61,31 +61,50 @@ function buildInfluencer(handle: string, niche: Niche, tier: Tier): Influencer {
   }
 }
 
-// Themed handle pools — 3 nano, 3 micro, 1 macro per niche
-const HANDLES: Record<Niche, string[]> = {
-  pets: ['@fluffychennai', '@meowmumbai', '@pawsofpune', '@bengalurupets', '@delhidoggos', '@thecatcafeblr', '@indianpetparent'],
-  fashion: ['@nanofitpune', '@thriftwithtara', '@desistreetstyle', '@indiesareestory', '@mumbaiminimal', '@streetweardelhi', '@voguebyvani'],
-  beauty: ['@glowwithgia', '@skinbynisha', '@kajalandco', '@desiglowup', '@beautybybhavna', '@theglossguide', '@makeupbymaya'],
-  food: ['@homechefhyb', '@bhelpurigirl', '@chaiandchaos', '@veganmumbaikitchen', '@streetfoodsaga', '@biryanibabes', '@thefoodieflick'],
-  fitness: ['@nanofitdelhi', '@runningwithrohan', '@yogawithaditi', '@gymratpune', '@fitfambangalore', '@pilatesbypriya', '@theshreddedsardar'],
-  travel: ['@offbeatodisha', '@backpackbabu', '@hillsofhimachal', '@nomadicnaina', '@wanderwithwasim', '@trainsofindia', '@theglobetrottergal'],
-  tech: ['@gadgetgully', '@codewithkabir', '@desitechie', '@aiwithanmol', '@unboxbyutsav', '@thegizmoguru', '@techtuesdays'],
-  gaming: ['@bgmiwithbholu', '@noobtoprorgaming', '@queenofkills', '@valorantvikram', '@indiangamergirl', '@streamersahil', '@thegamingadda'],
-  parenting: ['@momof2mumbai', '@dadjokesdelhi', '@raisingrhea', '@thedesimomdiary', '@toddlertalesblr', '@newmomnotes', '@theparentingpro'],
-  finance: ['@paisawithpriya', '@stocksforstudents', '@sipsavvy', '@desifinanceguy', '@cryptochaiwala', '@budgetbabaa', '@themoneymentor'],
-  home: ['@tinyflatbig', '@declutterdiaries', '@plantsofpune', '@homewithhaya', '@diydecordivya', '@therentedhome', '@interiorinsider'],
-  sustainability: ['@zerowastezoya', '@thrifteddreams', '@ecowithesha', '@plasticfreepune', '@slowfashionsana', '@greenwithgaurav', '@sustainabledesi'],
-  education: ['@upscwithuma', '@learnwithlavanya', '@historyhungama', '@scienceforsanya', '@codeclasses', '@examtipsdaily', '@theknowledgenest'],
-  comedy: ['@sketchysandeep', '@relatablerimi', '@officehumourhq', '@desimemequeen', '@standupsimran', '@potatoechips', '@thecomedycorner'],
+// Niche-themed handle word banks → combined with shared suffixes to mint
+// plenty of believable handles (so budgets can actually be exhausted).
+const PREFIXES: Record<Niche, string[]> = {
+  pets: ['paws', 'meow', 'woof', 'furry', 'tail', 'whiskers', 'purrfect', 'fluffy', 'snout', 'barks'],
+  fashion: ['thrift', 'drape', 'stitch', 'vogue', 'street', 'ootd', 'styled', 'fab', 'trend', 'couture'],
+  beauty: ['glow', 'blush', 'skin', 'kohl', 'glam', 'dewy', 'tint', 'radiant', 'beauty', 'makeup'],
+  food: ['chai', 'masala', 'tiffin', 'bites', 'tadka', 'foodie', 'spice', 'curry', 'crave', 'kitchen'],
+  fitness: ['fit', 'gains', 'flex', 'yoga', 'run', 'lift', 'shred', 'core', 'active', 'sweat'],
+  travel: ['wander', 'nomad', 'backpack', 'voyage', 'roam', 'trails', 'escape', 'journey', 'explore', 'offbeat'],
+  tech: ['gadget', 'byte', 'circuit', 'pixel', 'code', 'gizmo', 'techie', 'digital', 'unbox', 'spec'],
+  gaming: ['frag', 'respawn', 'noob', 'clutch', 'loot', 'pixel', 'gamer', 'arcade', 'quest', 'grind'],
+  parenting: ['mommy', 'daddy', 'toddler', 'raising', 'parent', 'tiny', 'brood', 'nestle', 'cradle', 'family'],
+  finance: ['paisa', 'stocks', 'sip', 'wealth', 'fund', 'money', 'budget', 'invest', 'profit', 'rupee'],
+  home: ['decor', 'nest', 'abode', 'cozy', 'interior', 'dwell', 'casa', 'hearth', 'homely', 'space'],
+  sustainability: ['eco', 'green', 'zerowaste', 'thrift', 'slow', 'planet', 'conscious', 'reuse', 'earthy', 'sustain'],
+  education: ['learn', 'study', 'gyaan', 'scholar', 'exam', 'classroom', 'lesson', 'brainy', 'edu', 'mentor'],
+  comedy: ['giggle', 'sketch', 'meme', 'witty', 'punchline', 'comic', 'banter', 'jest', 'lol', 'prank'],
 }
 
+const SUFFIXES = ['delhi', 'mumbai', 'blr', 'pune', 'hq', 'daily', 'diaries', 'life', 'gram', 'club', 'tales', 'india', 'world', 'official', 'story', 'co']
+
+// 8 nano + 7 micro + 5 macro = 20 creators per niche
+const TIER_PLAN: Tier[] = [
+  ...Array<Tier>(8).fill('nano'),
+  ...Array<Tier>(7).fill('micro'),
+  ...Array<Tier>(5).fill('macro'),
+]
+
 function buildNiche(niche: Niche): Influencer[] {
-  const handles = HANDLES[niche]
-  // 3 nano, 3 micro, 1 macro
-  const tiers: Tier[] = ['nano', 'nano', 'nano', 'micro', 'micro', 'micro', 'macro']
-  return handles.map((handle, i) => buildInfluencer(handle, niche, tiers[i]))
+  const rand = seeded(`handles-${niche}`)
+
+  // All prefix+suffix combos, deterministically shuffled
+  const combos: string[] = []
+  for (const p of PREFIXES[niche]) {
+    for (const s of SUFFIXES) combos.push(`@${p}${s}`)
+  }
+  for (let i = combos.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[combos[i], combos[j]] = [combos[j], combos[i]]
+  }
+
+  return TIER_PLAN.map((tier, i) => buildInfluencer(combos[i], niche, tier))
 }
 
 export const MOCK_INFLUENCERS: Influencer[] = (
-  Object.keys(HANDLES) as Niche[]
+  Object.keys(PREFIXES) as Niche[]
 ).flatMap((niche) => buildNiche(niche))

@@ -10,7 +10,7 @@ import MetricsLegend from '@/components/MetricsLegend'
 import BucketGrid from '@/components/BucketGrid'
 import { MOCK_INFLUENCERS } from '@/lib/mockData'
 import { allocateBudget } from '@/lib/allocateBudget'
-import { Niche } from '@/lib/types'
+import { Niche, AllocationStrategy } from '@/lib/types'
 
 const DEFAULT_BUDGET = 50000
 const DEFAULT_NICHE: Niche = 'pets'
@@ -18,6 +18,8 @@ const DEFAULT_NICHE: Niche = 'pets'
 export default function DashboardPage() {
   const [budget, setBudget] = useState(DEFAULT_BUDGET)
   const [niche, setNiche] = useState<Niche>(DEFAULT_NICHE)
+  const [strategy, setStrategy] = useState<AllocationStrategy>('reach')
+  const [count, setCount] = useState(5)
 
   const filtered = useMemo(
     () => MOCK_INFLUENCERS.filter((i) => i.niche === niche),
@@ -25,8 +27,12 @@ export default function DashboardPage() {
   )
 
   const result = useMemo(
-    () => allocateBudget(filtered, budget),
-    [filtered, budget]
+    () =>
+      allocateBudget(filtered, budget, {
+        strategy,
+        maxCount: strategy === 'count' ? count : undefined,
+      }),
+    [filtered, budget, strategy, count]
   )
 
   return (
@@ -59,8 +65,13 @@ export default function DashboardPage() {
             <BudgetControls
               budget={budget}
               niche={niche}
+              strategy={strategy}
+              count={count}
+              maxCount={filtered.length}
               onBudgetChange={setBudget}
               onNicheChange={setNiche}
+              onStrategyChange={setStrategy}
+              onCountChange={setCount}
             />
           </div>
 

@@ -16,6 +16,13 @@ export type Niche =
 
 export type Tier = 'nano' | 'micro' | 'macro'
 
+// How the budget allocator chooses creators:
+// - reach:      most total views (favours larger creators) — exhausts budget
+// - engagement: highest engagement rate (favours nano creators)
+// - value:      best engagement × reach per rupee (bang for buck)
+// - count:      a fixed number of creators (best engagement that fits)
+export type AllocationStrategy = 'reach' | 'engagement' | 'value' | 'count'
+
 export interface Influencer {
   id: string
   handle: string

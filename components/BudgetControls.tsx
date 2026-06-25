@@ -2,28 +2,61 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IndianRupee, Target, ChevronDown, Check } from 'lucide-react'
-import { Niche } from '@/lib/types'
+import {
+  IndianRupee,
+  Target,
+  ChevronDown,
+  Check,
+  TrendingUp,
+  Heart,
+  Gem,
+  Hash,
+  Minus,
+  Plus,
+} from 'lucide-react'
+import { Niche, AllocationStrategy } from '@/lib/types'
 import { NICHES } from '@/lib/niches'
 
 interface Props {
   budget: number
   niche: Niche
+  strategy: AllocationStrategy
+  count: number
+  maxCount: number
   onBudgetChange: (value: number) => void
   onNicheChange: (value: Niche) => void
+  onStrategyChange: (value: AllocationStrategy) => void
+  onCountChange: (value: number) => void
 }
+
+const STRATEGIES: {
+  value: AllocationStrategy
+  label: string
+  icon: typeof TrendingUp
+  hint: string
+}[] = [
+  { value: 'reach', label: 'Max Reach', icon: TrendingUp, hint: 'Spend the budget for the most total views.' },
+  { value: 'engagement', label: 'Max Engagement', icon: Heart, hint: 'Pick the most engaged creators within budget.' },
+  { value: 'value', label: 'Best Value', icon: Gem, hint: 'Best engagement & reach per rupee spent.' },
+  { value: 'count', label: 'Pick Count', icon: Hash, hint: 'Choose exactly how many creators you want.' },
+]
 
 export default function BudgetControls({
   budget,
   niche,
+  strategy,
+  count,
+  maxCount,
   onBudgetChange,
   onNicheChange,
+  onStrategyChange,
+  onCountChange,
 }: Props) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const selected = NICHES.find((n) => n.value === niche) ?? NICHES[0]
+  const activeStrategy = STRATEGIES.find((s) => s.value === strategy)
 
-  // Close dropdown on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -36,7 +69,7 @@ export default function BudgetControls({
 
   return (
     <motion.div
-      className="shadow-soft rounded-2xl bg-white/60 p-6 ring-1 ring-border/60 backdrop-blur-sm"
+      className="shadow-soft relative z-30 rounded-2xl bg-white/60 p-6 ring-1 ring-border/60 backdrop-blur-sm"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
@@ -102,7 +135,7 @@ export default function BudgetControls({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
-                className="shadow-card absolute z-30 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-border bg-white p-1.5"
+                className="shadow-card absolute z-50 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-border bg-white p-1.5"
               >
                 {NICHES.map((n) => (
                   <li key={n.value}>
@@ -128,6 +161,63 @@ export default function BudgetControls({
               </motion.ul>
             )}
           </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Allocation strategy */}
+      <div className="mt-6 border-t border-border/60 pt-5">
+        <label className="mb-2 block text-sm font-semibold text-foreground/80">
+          Allocation Strategy
+        </label>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {STRATEGIES.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              onClick={() => onStrategyChange(value)}
+              className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                strategy === value
+                  ? 'shadow-soft border-primary bg-primary text-white'
+                  : 'border-border bg-white/50 text-foreground/70 hover:border-primary/40 hover:bg-muted'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-foreground/50">{activeStrategy?.hint}</p>
+
+          {/* Count stepper — only for the "Pick Count" strategy */}
+          {strategy === 'count' && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-foreground/70">
+                Creators:
+              </span>
+              <div className="flex items-center gap-1 rounded-xl border border-border bg-white/70 p-1">
+                <button
+                  onClick={() => onCountChange(Math.max(1, count - 1))}
+                  className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/60 transition hover:bg-muted disabled:opacity-40"
+                  disabled={count <= 1}
+                  aria-label="Decrease creator count"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="w-6 text-center text-sm font-bold text-foreground">
+                  {count}
+                </span>
+                <button
+                  onClick={() => onCountChange(Math.min(maxCount, count + 1))}
+                  className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/60 transition hover:bg-muted disabled:opacity-40"
+                  disabled={count >= maxCount}
+                  aria-label="Increase creator count"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

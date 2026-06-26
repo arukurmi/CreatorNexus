@@ -26,4 +26,29 @@ describe('resolvePricingConfig', () => {
     expect(() => resolvePricingConfig()).not.toThrow()
     expect(resolvePricingConfig().cpm.micro).toBe(DEFAULT_PRICING.cpm.micro)
   })
+
+  it('invalid PRICING_MODEL falls back to "cpm"', () => {
+    process.env.PRICING_MODEL = 'engagement_multiplier'
+    expect(resolvePricingConfig().model).toBe('cpm')
+  })
+
+  it('negative CPM_MICRO falls back to default (not -100)', () => {
+    process.env.CPM_MICRO = '-100'
+    expect(resolvePricingConfig().cpm.micro).toBe(DEFAULT_PRICING.cpm.micro)
+  })
+
+  it('W_NORM_K override is honored', () => {
+    process.env.W_NORM_K = '25000'
+    expect(resolvePricingConfig().weightedNormK).toBe(25000)
+  })
+
+  it('empty W_NORM_K falls back to default 50000', () => {
+    process.env.W_NORM_K = ''
+    expect(resolvePricingConfig().weightedNormK).toBe(50000)
+  })
+
+  it('invalid W_NORM_K falls back to default 50000', () => {
+    process.env.W_NORM_K = 'bad'
+    expect(resolvePricingConfig().weightedNormK).toBe(50000)
+  })
 })

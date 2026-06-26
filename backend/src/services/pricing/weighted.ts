@@ -14,11 +14,10 @@ export const weightedPricer: Pricer = {
     const tier = getTier(s.followers)
     const [lo, hi] = cfg.tierBands[tier]
     // Squash score into [0,1] then map into the tier band.
-    const norm = score / (score + 50000)
+    const norm = score / (score + cfg.weightedNormK)
     const mid = Math.max(MIN_FLOOR * 1.5, lo + (hi - lo) * norm)
-    return {
-      cost_min: Math.max(MIN_FLOOR, Math.round(mid * (1 - cfg.spread))),
-      cost_max: Math.round(mid * (1 + cfg.spread)),
-    }
+    const cost_min = Math.max(MIN_FLOOR, Math.round(mid * (1 - cfg.spread)))
+    const cost_max = Math.max(Math.round(mid * (1 + cfg.spread)), cost_min + 1)
+    return { cost_min, cost_max }
   },
 }

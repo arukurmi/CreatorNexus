@@ -2,8 +2,6 @@
  * pricing.extra.test.ts
  * Additional corner-case / invariant tests for the pricing layer.
  * Do NOT modify pricing.test.ts — this file extends coverage only.
- *
- * BUG FLAG: Search for "BUG:" comments below for issues surfaced by these tests.
  */
 import { describe, it, expect } from 'vitest'
 import { engagementMultiplier } from '../src/services/pricing/engagementMultiplier'
@@ -12,7 +10,7 @@ import { weightedPricer } from '../src/services/pricing/weighted'
 import { tierFlatPricer } from '../src/services/pricing/tierFlat'
 import { getPricer } from '../src/services/pricing'
 import { MIN_FLOOR } from '../src/services/pricing/types'
-import { DEFAULT_PRICING } from '../src/config/pricingConfig'
+import { DEFAULT_PRICING, resolvePricingConfig } from '../src/config/pricingConfig'
 import type { RawCreatorSignals } from '../src/types'
 
 // ---------------------------------------------------------------------------
@@ -408,5 +406,41 @@ describe('robustness – very large followers (macro-scale)', () => {
     const [, hi] = cfg.tierBands.macro
     expect(cost_min).toBeGreaterThan(0)
     expect(cost_max).toBeLessThanOrEqual(hi * (1 + cfg.spread) + 1) // norm saturates near 1
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Invariant: cost_min < cost_max holds even when spread = 0
+// ---------------------------------------------------------------------------
+describe('cost_min < cost_max invariant with spread = 0', () => {
+  const zeroSpreadCfg = { ...resolvePricingConfig(), spread: 0 }
+
+  it('cpm pricer: cost_min < cost_max when spread = 0', () => {
+    for (const s of [nano(), base(), macro()]) {
+      const { cost_min, cost_max } = cpmPricer.price(s, zeroSpreadCfg)
+      expect(cost_min).toBeLessThan(cost_max)
+    }
+  })
+
+  it('weighted pricer: cost_min < cost_max when spread = 0', () => {
+    for (const s of [nano(), base(), macro()]) {
+      const { cost_min, cost_max } = weightedPricer.price(s, zeroSpreadCfg)
+      expect(cost_min).toBeLessThan(cost_max)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Invariant: tierFlat with tierAvgEng.nano = 0 does not produce NaN
+// ---------------------------------------------------------------------------
+describe('tierFlat defensive divisor guard (tierAvgEng.nano = 0)', () => {
+  const badCfg = { ...DEFAULT_PRICING, tierAvgEng: { ...DEFAULT_PRICING.tierAvgEng, nano: 0 } }
+
+  it('returns finite cost_min > 0 and cost_min < cost_max for a nano creator', () => {
+    const { cost_min, cost_max } = tierFlatPricer.price(nano(), badCfg)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
   })
 })

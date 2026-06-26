@@ -3,7 +3,7 @@ export type Niche =
   | 'gaming' | 'parenting' | 'finance' | 'home' | 'sustainability'
   | 'education' | 'comedy'
 
-export const NICHES: Niche[] = [
+export const NICHES: readonly Niche[] = [
   'pets','fashion','beauty','food','fitness','travel','tech','gaming',
   'parenting','finance','home','sustainability','education','comedy',
 ]

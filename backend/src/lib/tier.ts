@@ -1,6 +1,6 @@
 import type { Tier } from '../types/index.js'
 
-export const TIER_ORDER: Tier[] = ['nano', 'micro', 'macro']
+export const TIER_ORDER: readonly Tier[] = ['nano', 'micro', 'macro']
 
 export function getTier(followers: number): Tier {
   if (followers >= 100_000) return 'macro'

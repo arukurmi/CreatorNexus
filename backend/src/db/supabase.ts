@@ -15,7 +15,7 @@ export function supabaseDriver(): DbDriver {
   return {
     insert: async (t, row) => { const { data, error } = await sb.from(t).insert(row).select().single(); if (error) throw error; return data },
     selectByOwner: async (t, owner) => { const { data, error } = await sb.from(t).select('*').eq('owner_id', owner).order('created_at', { ascending: false }); if (error) throw error; return data ?? [] },
-    selectById: async (t, id) => { const { data } = await sb.from(t).select('*').eq('id', id).maybeSingle(); return data ?? null },
+    selectById: async (t, id) => { const { data, error } = await sb.from(t).select('*').eq('id', id).maybeSingle(); if (error) throw error; return data ?? null },
     deleteByIdOwner: async (t, id, owner) => { const { data, error } = await sb.from(t).delete().eq('id', id).eq('owner_id', owner).select(); if (error) throw error; return (data?.length ?? 0) > 0 },
   }
 }

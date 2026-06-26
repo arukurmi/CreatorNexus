@@ -36,7 +36,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchAllocation = useCallback(async () => {
+  const fetchAllocation = useCallback(async (signal?: AbortSignal) => {
     setLoading(true)
     setError(null)
     try {
@@ -44,12 +44,20 @@ export default function DashboardPage() {
       const sessionData = supabase ? await supabase.auth.getSession() : null
       const token = sessionData?.data.session?.access_token ?? ''
 
-      const res = await allocateViaApi(
+      if (!token) {
+        setError('Sign in to generate your allocation.')
+        setLoading(false)
+        return
+      }
+
+      const res = await allocateViaApi<ApiResult>(
         { budget, niche, strategy, count: strategy === 'count' ? count : undefined },
         token,
+        { signal },
       )
-      setApiResult(res as ApiResult)
+      setApiResult(res)
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
       setError(err instanceof Error ? err.message : 'Unable to reach the allocation service. Please try again.')
     } finally {
       setLoading(false)
@@ -57,7 +65,9 @@ export default function DashboardPage() {
   }, [budget, niche, strategy, count])
 
   useEffect(() => {
-    fetchAllocation()
+    const controller = new AbortController()
+    fetchAllocation(controller.signal)
+    return () => controller.abort()
   }, [fetchAllocation])
 
   // Adapt API result to BucketResult for BucketGrid
@@ -124,6 +134,35 @@ export default function DashboardPage() {
             </motion.div>
           )}
 
+          {/* Tier breakdown summary */}
+          {apiResult && !loading && (
+            <motion.div
+              className="mb-6 rounded-xl border border-border/50 bg-white/70 px-5 py-4"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <span className="font-semibold text-foreground/70 uppercase tracking-wide text-xs">Tier breakdown</span>
+                {(['nano', 'micro', 'macro'] as const).map((tier) => {
+                  const stat = apiResult.by_tier[tier]
+                  return (
+                    <span key={tier} className="flex items-center gap-1.5">
+                      <span className="capitalize font-medium text-foreground/80">{tier}</span>
+                      <span className="text-foreground/50">
+                        {stat.count} creator{stat.count !== 1 ? 's' : ''} · ₹{stat.spend.toLocaleString('en-IN')}
+                      </span>
+                    </span>
+                  )
+                })}
+                <span className="ml-auto flex items-center gap-3 text-foreground/60">
+                  <span>Total spend: <strong className="text-foreground/80">₹{apiResult.total_projected_spend.toLocaleString('en-IN')}</strong></span>
+                  <span>Leftover: <strong className="text-foreground/80">₹{apiResult.leftover_budget.toLocaleString('en-IN')}</strong></span>
+                </span>
+              </div>
+            </motion.div>
+          )}
+
           {/* Error state */}
           {error && !loading && (
             <motion.div
@@ -134,7 +173,7 @@ export default function DashboardPage() {
               <p className="font-semibold">Could not load allocation</p>
               <p className="mt-1 text-red-600/80">{error}</p>
               <button
-                onClick={fetchAllocation}
+                onClick={() => fetchAllocation()}
                 className="mt-3 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-200"
               >
                 Retry

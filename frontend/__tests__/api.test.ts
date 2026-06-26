@@ -11,6 +11,7 @@ describe('allocateViaApi', () => {
     )
     expect(fetchFn).toHaveBeenCalledWith('http://x/api/allocate', expect.objectContaining({
       method: 'POST', headers: expect.objectContaining({ Authorization: 'Bearer tok' }),
+      body: JSON.stringify({ budget: 1000, niche: 'tech', strategy: 'reach' }),
     }))
     expect(res).toEqual(json)
   })
@@ -23,5 +24,18 @@ describe('allocateViaApi', () => {
         fetchFn,
       }),
     ).rejects.toThrow('allocate failed: 401')
+  })
+
+  it('includes count in body for count strategy and returns parsed JSON', async () => {
+    const json = { selected: [], total_projected_spend: 0, budget_buffer_applied: false }
+    const fetchFn = vi.fn().mockResolvedValue({ ok: true, json: async () => json })
+    const res = await allocateViaApi(
+      { budget: 5000, niche: 'food', strategy: 'count', count: 3 }, 'tok',
+      { base: 'http://x', fetchFn },
+    )
+    expect(fetchFn).toHaveBeenCalledWith('http://x/api/allocate', expect.objectContaining({
+      body: JSON.stringify({ budget: 5000, niche: 'food', strategy: 'count', count: 3 }),
+    }))
+    expect(res).toEqual(json)
   })
 })

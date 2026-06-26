@@ -11,7 +11,9 @@ import { errorHandler } from './middleware/errorHandler.js'
 
 export function createApp(): Express {
   const app = express()
-  app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000', credentials: true }))
+  const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:3000'
+  if (corsOrigin === '*') throw new Error('CORS_ORIGIN cannot be "*" with credentials enabled')
+  app.use(cors({ origin: corsOrigin, credentials: true }))
   app.use(express.json())
   app.use('/api', rateLimit)
   app.use('/api', healthRouter)

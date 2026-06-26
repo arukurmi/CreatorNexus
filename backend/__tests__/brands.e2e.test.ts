@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import request from 'supertest'
 import { createApp } from '../src/app'
-import { __setVerifier } from '../src/middleware/supabaseAuth'
-import { setRepos } from '../src/routes/_repos'
+import { __setVerifier, __resetVerifier } from '../src/middleware/supabaseAuth'
+import { setRepos, __resetRepos } from '../src/routes/_repos'
 import { makeBrandsRepo } from '../src/db/brandsRepo'
 import { makeCampaignsRepo } from '../src/db/campaignsRepo'
 
@@ -23,6 +23,7 @@ beforeEach(() => {
   setRepos({ brands: makeBrandsRepo(db), campaigns: makeCampaignsRepo(db) })
   __setVerifier(async () => user)
 })
+afterEach(() => { __resetRepos(); __resetVerifier() })
 const A = (r: request.Test) => r.set('Authorization', 'Bearer good')
 
 describe('brands CRUD', () => {
@@ -39,5 +40,9 @@ describe('brands CRUD', () => {
   })
   it('400 on invalid body', async () => {
     expect((await A(request(createApp()).post('/api/brands').send({ name: '' }))).status).toBe(400)
+  })
+  it('404 deleting nonexistent brand', async () => {
+    user = { id: 'u1', email: 'a@b.c' }
+    expect((await A(request(createApp()).delete('/api/brands/nonexistent-id'))).status).toBe(404)
   })
 })

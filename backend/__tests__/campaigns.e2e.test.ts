@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import request from 'supertest'
 import { createApp } from '../src/app'
-import { __setVerifier } from '../src/middleware/supabaseAuth'
-import { setRepos } from '../src/routes/_repos'
+import { __setVerifier, __resetVerifier } from '../src/middleware/supabaseAuth'
+import { setRepos, __resetRepos } from '../src/routes/_repos'
 import { makeBrandsRepo } from '../src/db/brandsRepo'
 import { makeCampaignsRepo } from '../src/db/campaignsRepo'
 
@@ -21,6 +21,7 @@ beforeEach(() => {
   setRepos({ brands: makeBrandsRepo(db), campaigns: makeCampaignsRepo(db) })
   __setVerifier(async () => user)
 })
+afterEach(() => { __resetRepos(); __resetVerifier() })
 const A = (r: request.Test) => r.set('Authorization', 'Bearer good')
 const body = { brand_id: null, niche: 'tech', budget: 50000, strategy: 'reach', count: null,
   projected_spend: 40000, result: { selected: [], total_projected_spend: 40000 } }
@@ -33,6 +34,7 @@ describe('campaign history', () => {
     const id = saved.body.id
     expect((await A(request(createApp()).get('/api/campaigns'))).body.length).toBe(1)
     const got = await A(request(createApp()).get(`/api/campaigns/${id}`))
+    expect(got.status).toBe(200)
     expect(got.body.result.total_projected_spend).toBe(40000)
   })
   it('403 fetching another user\'s campaign, 404 when missing', async () => {

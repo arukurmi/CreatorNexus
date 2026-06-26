@@ -21,7 +21,8 @@ brandsRouter.delete('/brands/:id', requireAuth, async (req: AuthedRequest, res, 
     const found = await getRepos().brands.getById(req.params.id)
     if (!found) return next(httpError(404, 'Brand not found'))
     if (found.owner_id !== req.user!.id) return next(httpError(403, 'Forbidden'))
-    await getRepos().brands.deleteOwned(req.params.id, req.user!.id)
+    const deleted = await getRepos().brands.deleteOwned(req.params.id, req.user!.id)
+    if (!deleted) return next(httpError(404, 'Brand not found'))
     res.status(204).end()
   } catch (e) { next(e) }
 })

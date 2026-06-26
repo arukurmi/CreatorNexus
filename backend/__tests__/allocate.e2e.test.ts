@@ -22,6 +22,7 @@ describe('POST /api/allocate', () => {
   })
   it('engagement applies 10% buffer', async () => {
     const res = await post({ budget: 80000, niche: 'tech', strategy: 'engagement' })
+    expect(res.status).toBe(200)
     expect(res.body.effective_budget).toBe(88000)
     expect(res.body.budget_buffer_applied).toBe(true)
   })

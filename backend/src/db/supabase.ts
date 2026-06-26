@@ -1,6 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import WebSocketImpl from 'ws'
 import { env } from '../config/env.js'
 import type { DbDriver } from './brandsRepo.js'
+
+// Node < 22 has no global WebSocket. @supabase/supabase-js constructs a
+// RealtimeClient in its constructor that requires one, so createClient() throws
+// (and every auth check 401s) without this polyfill. We never use realtime.
+if (typeof (globalThis as { WebSocket?: unknown }).WebSocket === 'undefined') {
+  ;(globalThis as { WebSocket?: unknown }).WebSocket = WebSocketImpl
+}
 
 let client: SupabaseClient | null = null
 export function getSupabase(): SupabaseClient | null {

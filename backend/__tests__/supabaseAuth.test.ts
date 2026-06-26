@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import express from 'express'
 import request from 'supertest'
-import { requireAuth, __setVerifier } from '../src/middleware/supabaseAuth.js'
+import { requireAuth, __setVerifier, __resetVerifier } from '../src/middleware/supabaseAuth.js'
 
 function appWith() {
   const app = express()
@@ -11,6 +11,8 @@ function appWith() {
 }
 
 describe('requireAuth', () => {
+  afterEach(() => __resetVerifier())
+
   it('401 when no token', async () => {
     const res = await request(appWith()).get('/secure')
     expect(res.status).toBe(401)
@@ -25,5 +27,16 @@ describe('requireAuth', () => {
     const res = await request(appWith()).get('/secure').set('Authorization', 'Bearer good')
     expect(res.status).toBe(200)
     expect(res.body.id).toBe('u1')
+  })
+  it('401 when verifier throws (no hang)', async () => {
+    __setVerifier(async () => { throw new Error('supabase down') })
+    const res = await request(appWith()).get('/secure').set('Authorization', 'Bearer x')
+    expect(res.status).toBe(401)
+  })
+  it('200 with lowercase bearer scheme', async () => {
+    __setVerifier(async () => ({ id: 'u2', email: 'b@c.d' }))
+    const res = await request(appWith()).get('/secure').set('Authorization', 'bearer good')
+    expect(res.status).toBe(200)
+    expect(res.body.id).toBe('u2')
   })
 })

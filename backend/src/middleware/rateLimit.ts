@@ -8,11 +8,16 @@ const redis = getRedis()
 const limiter = redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(60, '60 s') }) : null
 
 export async function rateLimit(req: AuthedRequest, res: Response, next: NextFunction) {
-  if (!limiter) return next() // no Upstash configured → skip
+  if (!limiter) return next() // Upstash not configured → skip
   const id = req.user?.id ?? req.ip ?? 'anon'
-  const { success, limit, remaining } = await limiter.limit(id)
-  res.setHeader('X-RateLimit-Limit', String(limit))
-  res.setHeader('X-RateLimit-Remaining', String(remaining))
-  if (!success) return next(httpError(429, 'Rate limit exceeded'))
-  next()
+  try {
+    const { success, limit, remaining } = await limiter.limit(id)
+    res.setHeader('X-RateLimit-Limit', String(limit))
+    res.setHeader('X-RateLimit-Remaining', String(remaining))
+    if (!success) return next(httpError(429, 'Rate limit exceeded'))
+    next()
+  } catch {
+    // Upstash unavailable → fail OPEN (do not block traffic on infra failure)
+    next()
+  }
 }

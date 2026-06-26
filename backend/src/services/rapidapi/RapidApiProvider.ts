@@ -19,8 +19,9 @@ export class RapidApiProvider implements InfluencerProvider {
 
   // The seed handles to look up for a niche (curated prefixes × suffixes).
   private seedHandles(niche: Niche): string[] {
+    const prefixes = NICHE_PREFIXES[niche] ?? []
     const out: string[] = []
-    NICHE_PREFIXES[niche].forEach((p) => SUFFIXES.forEach((s) => out.push(`${p}${s}`)))
+    prefixes.forEach((p) => SUFFIXES.forEach((s) => out.push(`${p}${s}`)))
     return out.slice(0, 20)
   }
 

@@ -32,7 +32,8 @@ describe('RapidApiProvider', () => {
       .mockResolvedValue({ ok: true, json: async () => sampleProfile } as Response)
     const p = new RapidApiProvider({ key: 'k', host: 'h', fetchFn })
     const list = await p.getByNiche('fashion')
-    expect(Array.isArray(list)).toBe(true)
+    expect(list).toHaveLength(19)
+    expect(list[0].handle).toBe('styledaily')
   })
 
   it('handles malformed JSON by skipping the creator', async () => {

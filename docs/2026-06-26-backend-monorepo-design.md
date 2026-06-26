@@ -231,11 +231,57 @@ and **Middleware** for cross-cutting auth/rate-limit.
 
 ## 11. Testing
 
-Vitest. Pure-unit coverage for: every pricing model (known inputs → known ranges),
-the engagement multiplier, each allocation strategy (incl. the 1.10 buffer and per-bucket
-merge), tier derivation, and the provider fallback. Route-level tests with mocked Supabase
-and mocked RapidAPI. Generated-fallback path must produce valid, tier-consistent data with
-no key present.
+**Mandate: cover every happy path AND every corner case, plus full end-to-end tests for
+all API interactions.** Vitest throughout; Supertest for HTTP-level e2e against the Express
+app.
+
+### 11a. Unit (happy + corner cases)
+
+- **Pricing models** — each of cpm / weighted / tierFlat: known inputs → known ranges;
+  invariant `cost_min < cost_max` and both > 0; corner cases: zero/near-zero followers,
+  zero avg_views, engagement_rate = 0 and capped high, tier boundary followers
+  (9 999 / 10 000 / 99 999 / 100 000), missing/NaN signals → safe defaults not crash.
+- **Engagement multiplier** — at, above, and below `tierAvgEng`; clamping bounds.
+- **Allocation strategies** — each of reach / engagement / value / count:
+  budget = 0, budget below cheapest creator, budget above all creators (full sweep),
+  empty creator list, single creator, ties, `count` larger than available, `count` = 0;
+  verify the **1.10 buffer applies only to max-engagement** and to all three buckets;
+  verify per-bucket merge and `total_projected_spend`/`leftover_budget` arithmetic;
+  verify `budget_buffer_applied` flag is set only for max-engagement.
+- **Tier derivation & bucketing** — boundary followers, every niche.
+- **Providers** — `GeneratedProvider` is deterministic and tier-consistent with no key;
+  `RapidApiProvider` adapter maps a sample payload correctly and handles vendor errors,
+  empty results, and malformed JSON; `CachingProvider` returns cached on 2nd call (cache
+  hit) and refetches on miss/expiry.
+- **pricingConfig resolver** — env overrides defaults; malformed env → falls back to
+  defaults, never throws; chain order Redis(stub)→env→defaults respected.
+- **Repositories** — ownership filtering; not-found; in-memory fake for unit speed.
+
+### 11b. End-to-end (all API interactions, Supertest)
+
+Real Express app with **mocked Supabase (auth + DB) and mocked RapidAPI**; assert status
+codes, bodies, and side effects for:
+
+- `GET /api/health` → 200.
+- **Auth/authorization on every protected route**: missing token → 401; malformed/expired
+  token → 401; valid token but accessing another user's brand/campaign → 403.
+- `POST /api/auth/session` valid/invalid token.
+- `GET /api/influencers?niche=` — valid niche, missing niche → 400, unknown niche → 400,
+  fallback path (no RAPIDAPI_KEY) returns priced creators.
+- `POST /api/allocate` — each strategy end-to-end; validation errors (negative/zero/NaN
+  budget, missing niche, `count` required-but-absent) → 400; max-engagement response shows
+  buffer flag and may exceed slider budget by ≤10%.
+- **Brands** CRUD: create → list → delete; ownership enforced; delete others' → 403;
+  delete missing → 404.
+- **Campaigns**: save snapshot → appears in list → fetch by id; cross-owner fetch → 403;
+  missing id → 404; saved `result` jsonb round-trips intact.
+- **Rate limiting**: exceeding the window → 429 with appropriate headers (mocked limiter).
+- **Error handler**: unhandled errors → 500 with safe JSON shape, no stack leak.
+
+### 11c. Coverage gate
+
+Backend test script runs unit + e2e; CI-style `npm test` must pass green with every
+strategy, every pricing model, and every route exercised.
 
 ## 12. Out of scope (now) / backlog
 

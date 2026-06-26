@@ -1,10 +1,11 @@
 import type { Pricer } from './types.js'
-import { MIN_FLOOR } from './types.js'
+import { MIN_FLOOR, sanitizeSignals } from './types.js'
 import { getTier } from '../../lib/tier.js'
 import { engagementMultiplier } from './engagementMultiplier.js'
 
 export const cpmPricer: Pricer = {
-  price(s, cfg) {
+  price(sRaw, cfg) {
+    const s = sanitizeSignals(sRaw)
     const tier = getTier(s.followers)
     const views = s.avg_views > 0 ? s.avg_views : Math.max(s.followers * 0.4, 500)
     const base = (views / 1000) * cfg.cpm[tier]

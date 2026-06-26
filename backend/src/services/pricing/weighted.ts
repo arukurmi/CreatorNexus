@@ -1,9 +1,10 @@
 import type { Pricer } from './types.js'
-import { MIN_FLOOR } from './types.js'
+import { MIN_FLOOR, sanitizeSignals } from './types.js'
 import { getTier } from '../../lib/tier.js'
 
 export const weightedPricer: Pricer = {
-  price(s, cfg) {
+  price(sRaw, cfg) {
+    const s = sanitizeSignals(sRaw)
     const ctrProxy = s.engagement_rate
     const score =
       cfg.weights.followers * s.followers +

@@ -336,37 +336,59 @@ describe('robustness – NaN avg_views', () => {
   })
 })
 
-describe('robustness – NaN engagement_rate [BUG]', () => {
+describe('robustness – NaN/Infinity engagement_rate (sanitization guarantee)', () => {
   /**
-   * BUG: NaN engagement_rate propagates through engagementMultiplier because
-   *   Math.max(0.4, NaN) === NaN  (IEEE-754: comparisons with NaN are false,
-   *   so Math.max/min return NaN).
-   * Consequently mid = Math.max(MIN_FLOOR*1.5, base * NaN) = NaN,
-   * and both cost_min and cost_max become NaN — violating the ≥ MIN_FLOOR invariant.
-   * The weighted and tier_flat pricers have the same NaN-propagation issue.
-   *
-   * Recommended fix: clamp/default engagement_rate to 0 at the top of each pricer
-   * or inside engagementMultiplier.
-   *
-   * These assertions document the ACTUAL (broken) behaviour so CI catches a fix.
+   * Robustness guarantee: NaN/Infinity engagement_rate must be sanitized to 0
+   * before pricing so no NaN escapes. sanitizeSignals() in types.ts and the
+   * defensive coercion in engagementMultiplier() together ensure this.
+   * All pricers must return finite cost_min > 0 and cost_min < cost_max.
    */
-  it('cpm: NaN engagement_rate produces NaN cost_min and cost_max [BUG]', () => {
+  it('cpm: NaN engagement_rate produces finite cost_min > 0 and cost_min < cost_max', () => {
     const { cost_min, cost_max } = cpmPricer.price(base({ engagement_rate: NaN }), cfg)
-    // BUG: expected >0; actual NaN
-    expect(Number.isNaN(cost_min)).toBe(true)
-    expect(Number.isNaN(cost_max)).toBe(true)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
   })
 
-  it('weighted: NaN engagement_rate produces NaN costs [BUG]', () => {
+  it('weighted: NaN engagement_rate produces finite costs with cost_min > 0 and cost_min < cost_max', () => {
     const { cost_min, cost_max } = weightedPricer.price(base({ engagement_rate: NaN }), cfg)
-    expect(Number.isNaN(cost_min)).toBe(true)
-    expect(Number.isNaN(cost_max)).toBe(true)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
   })
 
-  it('tier_flat: NaN engagement_rate produces NaN costs [BUG]', () => {
+  it('tier_flat: NaN engagement_rate produces finite costs with cost_min > 0 and cost_min < cost_max', () => {
     const { cost_min, cost_max } = tierFlatPricer.price(base({ engagement_rate: NaN }), cfg)
-    expect(Number.isNaN(cost_min)).toBe(true)
-    expect(Number.isNaN(cost_max)).toBe(true)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
+  })
+
+  it('cpm: Infinity engagement_rate produces finite cost_min > 0 and cost_min < cost_max', () => {
+    const { cost_min, cost_max } = cpmPricer.price(base({ engagement_rate: Infinity }), cfg)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
+  })
+
+  it('cpm: NaN followers produces finite cost_min > 0 and cost_min < cost_max', () => {
+    const { cost_min, cost_max } = cpmPricer.price(base({ followers: NaN, avg_views: 20_000 }), cfg)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
+  })
+
+  it('cpm: NaN avg_views with NaN followers produces finite cost_min > 0 and cost_min < cost_max', () => {
+    const { cost_min, cost_max } = cpmPricer.price(base({ followers: NaN, avg_views: NaN }), cfg)
+    expect(Number.isFinite(cost_min)).toBe(true)
+    expect(Number.isFinite(cost_max)).toBe(true)
+    expect(cost_min).toBeGreaterThan(0)
+    expect(cost_min).toBeLessThan(cost_max)
   })
 })
 

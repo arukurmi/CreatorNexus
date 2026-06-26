@@ -1,9 +1,10 @@
 import type { Pricer } from './types.js'
-import { MIN_FLOOR } from './types.js'
+import { MIN_FLOOR, sanitizeSignals } from './types.js'
 import { getTier } from '../../lib/tier.js'
 
 export const tierFlatPricer: Pricer = {
-  price(s, cfg) {
+  price(sRaw, cfg) {
+    const s = sanitizeSignals(sRaw)
     const tier = getTier(s.followers)
     const [lo, hi] = cfg.tierBands[tier]
     // Performance score from engagement vs tier average, in [0,1].

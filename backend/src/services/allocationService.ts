@@ -1,7 +1,7 @@
 import type { AllocationStrategy, Influencer, Tier } from '../types/index.js'
 import { getStrategy } from './allocation/index.js'
 import { BUFFER, type AllocationResult } from './allocation/types.js'
-import { groupByTier } from './allocation/bucketing.js'
+import { groupByTier, TIER_ORDER } from './allocation/bucketing.js'
 
 export function influencerCost(i: Influencer): number {
   return Math.round((i.cost_min + i.cost_max) / 2)
@@ -14,13 +14,12 @@ function greedyPick(
   creators: Influencer[], budget: number, score: (i: Influencer) => number, cap?: number,
 ): Influencer[] {
   const ranked = [...creators]
-    .map((i) => ({ i, eff: score(i) / Math.max(1, influencerCost(i)) }))
+    .map((i) => { const cost = influencerCost(i); return { i, cost, eff: score(i) / Math.max(1, cost) } })
     .sort((a, b) => b.eff - a.eff)
   const chosen: Influencer[] = []
   let spent = 0
-  for (const { i } of ranked) {
+  for (const { i, cost } of ranked) {
     if (cap != null && chosen.length >= cap) break
-    const cost = influencerCost(i)
     if (spent + cost <= budget) { chosen.push(i); spent += cost }
   }
   return chosen
@@ -36,13 +35,18 @@ export function allocate(creators: Influencer[], budget: number, opts: Options):
     selected = greedyPick(creators, effective, strat.score, Math.max(0, opts.count ?? 0))
   } else {
     // Split effective budget across tier buckets proportional to bucket size.
+    // Use floor+remainder to ensure shares sum to EXACTLY effective (no rounding overshoot).
     const buckets = groupByTier(creators)
     const total = creators.length || 1
     selected = []
-    for (const tier of ['nano', 'micro', 'macro'] as Tier[]) {
+    const tiers = TIER_ORDER.filter((t) => buckets[t].length)
+    let effectiveRemaining = effective
+    for (let idx = 0; idx < tiers.length; idx++) {
+      const tier = tiers[idx]
       const list = buckets[tier]
-      if (!list.length) continue
-      const share = Math.round(effective * (list.length / total))
+      const isLast = idx === tiers.length - 1
+      const share = isLast ? effectiveRemaining : Math.floor(effective * (list.length / total))
+      effectiveRemaining -= share
       selected.push(...greedyPick(list, share, strat.score))
     }
     // Second pass: spend any leftover across everything still unselected.

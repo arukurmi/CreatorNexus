@@ -206,7 +206,48 @@ describe('determinism', () => {
 })
 
 // ---------------------------------------------------------------------------
-// 7. Ranking sanity – reach prefers higher avg_views when only one fits
+// 7. Overshoot guard – Math.round tier-share split must never exceed effective
+//    Pool: 1 nano + 1 micro + 1 macro, each affordable.
+//    budget=10000, strategy=engagement → effective=11000.
+//    Old Math.round split: round(11000/3)=3667 × 3 = 11001 > 11000 (bug).
+//    Fixed floor+remainder split: 3666 + 3666 + 3668 = 11000 (correct).
+// ---------------------------------------------------------------------------
+describe('overshoot guard – tier share floor+remainder invariant', () => {
+  // Costs: nano=500, micro=500, macro=500 – all individually affordable at any split
+  const overshootPool: Influencer[] = [
+    mk('os_nano',  'nano',   5_000,  2_000, 0.08, 250,  750),   // cost=500
+    mk('os_micro', 'micro', 40_000, 20_000, 0.05, 250,  750),   // cost=500
+    mk('os_macro', 'macro', 200_000, 120_000, 0.03, 250, 750),  // cost=500
+  ]
+  const BUDGET = 10_000
+  const cases: Array<{ strategy: 'reach' | 'engagement' | 'value' | 'count'; extra?: { count: number } }> = [
+    { strategy: 'reach' },
+    { strategy: 'engagement' },
+    { strategy: 'value' },
+    { strategy: 'count', extra: { count: 3 } },
+  ]
+
+  for (const { strategy, extra } of cases) {
+    it(`${strategy}: total_projected_spend <= effective_budget (overshoot pool)`, () => {
+      const r = allocate(overshootPool, BUDGET, { strategy, ...extra })
+
+      // Binding invariant: spend never exceeds effective ceiling
+      expect(r.total_projected_spend).toBeLessThanOrEqual(r.effective_budget)
+
+      // Leftover is exact
+      expect(r.leftover_budget).toBe(
+        Math.max(0, r.effective_budget - r.total_projected_spend),
+      )
+
+      // Tier spends sum to total
+      const tierSum = r.by_tier.nano.spend + r.by_tier.micro.spend + r.by_tier.macro.spend
+      expect(tierSum).toBe(r.total_projected_spend)
+    })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// 9. Ranking sanity – reach prefers higher avg_views when only one fits
 // ---------------------------------------------------------------------------
 describe('reach ranking sanity', () => {
   // Both nano creators have identical cost (1000). Budget 1500 → only one fits.

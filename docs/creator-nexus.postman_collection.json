@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "Creator Nexus API",
+    "_postman_id": "creator-nexus-backend-v1",
+    "description": "Backend API for Creator Nexus — influencer budget allocator for Indian D2C brands.\n\nBase URL is the `base_url` variable (defaults to http://localhost:4000).\n\nAll routes except `GET /api/health` require a Supabase access token. Set the `token` collection variable to a valid Supabase JWT (sign in on the frontend, then copy `session.access_token`). The collection sends it as `Authorization: Bearer {{token}}` automatically.\n\nNiches (14): pets, fashion, beauty, food, fitness, travel, tech, gaming, parenting, finance, home, sustainability, education, comedy.\nStrategies (4): reach, engagement, value, count.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:4000", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "brand_id", "value": "", "type": "string" },
+    { "key": "campaign_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/health  (open, no auth)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/health", "host": ["{{base_url}}"], "path": ["api", "health"] },
+            "description": "Liveness probe. Returns { \"status\": \"ok\" }. The only unauthenticated route."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/auth/session  (validate token)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{base_url}}/api/auth/session", "host": ["{{base_url}}"], "path": ["api", "auth", "session"] },
+            "description": "Validates the bearer token and returns { user: { id, email } }. 401 if the token is missing/invalid/expired. Use this to confirm your {{token}} works."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Influencers",
+      "item": [
+        {
+          "name": "GET /api/influencers?niche=  (priced creators)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/influencers?niche=tech",
+              "host": ["{{base_url}}"],
+              "path": ["api", "influencers"],
+              "query": [{ "key": "niche", "value": "tech", "description": "one of the 14 niches" }]
+            },
+            "description": "Returns { niche, creators: Influencer[] } for a niche, each creator already priced with cost_min/cost_max and tier. Uses real RapidAPI data when RAPIDAPI_KEY is set, otherwise the deterministic generated fallback. 400 on missing/unknown niche, 401 without token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Allocate",
+      "item": [
+        {
+          "name": "POST /api/allocate  (max reach)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"budget\": 50000,\n  \"niche\": \"tech\",\n  \"strategy\": \"reach\"\n}" },
+            "url": { "raw": "{{base_url}}/api/allocate", "host": ["{{base_url}}"], "path": ["api", "allocate"] },
+            "description": "Runs the budget allocation server-side. Returns AllocationResult + creators_considered: { selected[], total_projected_spend, leftover_budget, effective_budget, budget_buffer_applied, by_tier, creators_considered }. Strategy 'reach' maximizes total views per rupee within the budget."
+          }
+        },
+        {
+          "name": "POST /api/allocate  (max engagement +10% buffer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"budget\": 50000,\n  \"niche\": \"fashion\",\n  \"strategy\": \"engagement\"\n}" },
+            "url": { "raw": "{{base_url}}/api/allocate", "host": ["{{base_url}}"], "path": ["api", "allocate"] },
+            "description": "Engagement is the ONLY strategy that may exceed the slider budget: effective_budget = round(budget * 1.10) and budget_buffer_applied = true, because the brand opted for maximum engagement."
+          }
+        },
+        {
+          "name": "POST /api/allocate  (best value)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"budget\": 50000,\n  \"niche\": \"food\",\n  \"strategy\": \"value\"\n}" },
+            "url": { "raw": "{{base_url}}/api/allocate", "host": ["{{base_url}}"], "path": ["api", "allocate"] },
+            "description": "Value blends reach and engagement (sqrt(views) * engagement*followers) per rupee."
+          }
+        },
+        {
+          "name": "POST /api/allocate  (pick count = N)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"budget\": 50000,\n  \"niche\": \"fitness\",\n  \"strategy\": \"count\",\n  \"count\": 5\n}" },
+            "url": { "raw": "{{base_url}}/api/allocate", "host": ["{{base_url}}"], "path": ["api", "allocate"] },
+            "description": "Picks exactly N best-blended creators that fit the budget. 'count' is required for this strategy (400 otherwise)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Brands",
+      "item": [
+        {
+          "name": "GET /api/brands  (my brands)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/brands", "host": ["{{base_url}}"], "path": ["api", "brands"] },
+            "description": "Lists brands owned by the authenticated user."
+          }
+        },
+        {
+          "name": "POST /api/brands  (create)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Acme D2C\",\n  \"niche\": \"beauty\"\n}" },
+            "url": { "raw": "{{base_url}}/api/brands", "host": ["{{base_url}}"], "path": ["api", "brands"] },
+            "description": "Creates a brand owned by the caller (201). owner_id is taken from the token, never the body. Copy the returned id into the brand_id variable. Requires the brands table (docs/db-schema.sql) and a service-role key."
+          }
+        },
+        {
+          "name": "DELETE /api/brands/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/brands/{{brand_id}}", "host": ["{{base_url}}"], "path": ["api", "brands", "{{brand_id}}"] },
+            "description": "Deletes a brand you own (204). 404 if missing, 403 if it belongs to another user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campaigns (history)",
+      "item": [
+        {
+          "name": "GET /api/campaigns  (my history)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/campaigns", "host": ["{{base_url}}"], "path": ["api", "campaigns"] },
+            "description": "Lists saved campaign snapshots owned by the caller."
+          }
+        },
+        {
+          "name": "POST /api/campaigns  (save snapshot)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"brand_id\": null,\n  \"niche\": \"tech\",\n  \"budget\": 50000,\n  \"strategy\": \"reach\",\n  \"count\": null\n}" },
+            "url": { "raw": "{{base_url}}/api/campaigns", "host": ["{{base_url}}"], "path": ["api", "campaigns"] },
+            "description": "Saves a campaign. The server RE-RUNS the allocation and stores the computed result + projected_spend (clients cannot persist inconsistent budgets). Returns the saved campaign (201). Copy its id into campaign_id."
+          }
+        },
+        {
+          "name": "GET /api/campaigns/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/campaigns/{{campaign_id}}", "host": ["{{base_url}}"], "path": ["api", "campaigns", "{{campaign_id}}"] },
+            "description": "Fetches one campaign you own (200). 404 if missing, 403 if it belongs to another user. The stored allocation result round-trips intact."
+          }
+        }
+      ]
+    }
+  ]
+}

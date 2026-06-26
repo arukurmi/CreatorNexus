@@ -10,8 +10,17 @@
 CreatorNexus/
 ├── backend/      # Express API — auth, influencer data, allocation engine
 ├── frontend/     # Next.js 16 + Tailwind v4 UI
-└── docs/         # db-schema.sql, running-locally.md
+└── docs/         # API.md, Postman collection, db-schema.sql, running-locally.md
 ```
+
+---
+
+## API & Postman
+
+Full API reference, auth notes, and an **importable Postman collection**:
+**[docs/API.md](docs/API.md)** · collection file: **[docs/creator-nexus.postman_collection.json](docs/creator-nexus.postman_collection.json)**
+
+In Postman: **Import → File →** select `docs/creator-nexus.postman_collection.json`. It ships with every endpoint, example bodies, and a `token` variable for your Supabase access token. Contributors can explore `/api/influencers` and `/api/allocate` immediately — they run on a generated dataset when no RapidAPI key is set.
 
 ---
 

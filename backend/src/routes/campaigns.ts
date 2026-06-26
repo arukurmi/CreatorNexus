@@ -4,6 +4,9 @@ import { requireAuth, type AuthedRequest } from '../middleware/supabaseAuth.js'
 import { httpError } from '../middleware/errorHandler.js'
 import { NICHES } from '../types/index.js'
 import { getRepos } from './_repos.js'
+import { getPricedCreators } from '../services/influencerService.js'
+import { allocate } from '../services/allocationService.js'
+import type { AllocationStrategy } from '../types/index.js'
 
 export const campaignsRouter = Router()
 const schema = z.object({
@@ -12,8 +15,6 @@ const schema = z.object({
   budget: z.number().positive(),
   strategy: z.enum(['reach', 'engagement', 'value', 'count']),
   count: z.number().int().positive().nullable(),
-  projected_spend: z.number().nonnegative(),
-  result: z.record(z.unknown()),
 })
 
 campaignsRouter.get('/campaigns', requireAuth, async (req: AuthedRequest, res, next) => {
@@ -22,7 +23,24 @@ campaignsRouter.get('/campaigns', requireAuth, async (req: AuthedRequest, res, n
 campaignsRouter.post('/campaigns', requireAuth, async (req: AuthedRequest, res, next) => {
   const p = schema.safeParse(req.body)
   if (!p.success) return next(httpError(400, 'Invalid campaign'))
-  try { res.status(201).json(await getRepos().campaigns.create({ owner_id: req.user!.id, ...(p.data as any) })) } catch (e) { next(e) }
+  try {
+    const creators = await getPricedCreators(p.data.niche as any)
+    const result = allocate(creators, p.data.budget, {
+      strategy: p.data.strategy as AllocationStrategy,
+      count: p.data.count ?? undefined,
+    })
+    const saved = await getRepos().campaigns.create({
+      owner_id: req.user!.id,
+      brand_id: p.data.brand_id,
+      niche: p.data.niche,
+      budget: p.data.budget,
+      strategy: p.data.strategy,
+      count: p.data.count,
+      result,
+      projected_spend: result.total_projected_spend,
+    })
+    res.status(201).json(saved)
+  } catch (e) { next(e) }
 })
 campaignsRouter.get('/campaigns/:id', requireAuth, async (req: AuthedRequest, res, next) => {
   try {

@@ -23,19 +23,24 @@ beforeEach(() => {
 })
 afterEach(() => { __resetRepos(); __resetVerifier() })
 const A = (r: request.Test) => r.set('Authorization', 'Bearer good')
-const body = { brand_id: null, niche: 'tech', budget: 50000, strategy: 'reach', count: null,
-  projected_spend: 40000, result: { selected: [], total_projected_spend: 40000 } }
+// POST body: server computes result and projected_spend — client sends only params
+const body = { brand_id: null, niche: 'tech', budget: 50000, strategy: 'reach', count: null }
 
 describe('campaign history', () => {
-  it('saves snapshot, lists, fetches by id, round-trips result', async () => {
+  it('saves snapshot with server-computed result, lists, fetches by id', async () => {
     user = { id: 'u1', email: 'a@b.c' }
     const saved = await A(request(createApp()).post('/api/campaigns').send(body))
     expect(saved.status).toBe(201)
     const id = saved.body.id
+    // Server must have computed projected_spend and result
+    expect(Number.isFinite(saved.body.projected_spend)).toBe(true)
+    expect(saved.body.projected_spend).toBeGreaterThanOrEqual(0)
+    expect(saved.body.result.total_projected_spend).toBe(saved.body.projected_spend)
+    expect(Array.isArray(saved.body.result.selected)).toBe(true)
     expect((await A(request(createApp()).get('/api/campaigns'))).body.length).toBe(1)
     const got = await A(request(createApp()).get(`/api/campaigns/${id}`))
     expect(got.status).toBe(200)
-    expect(got.body.result.total_projected_spend).toBe(40000)
+    expect(got.body.result.total_projected_spend).toBe(saved.body.projected_spend)
   })
   it('403 fetching another user\'s campaign, 404 when missing', async () => {
     user = { id: 'u1', email: 'a@b.c' }

@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Creator Nexus
 
-## Getting Started
+**Creator Nexus** is an influencer budget allocator built for Indian D2C brands. Marketers enter a campaign budget, choose a niche and an allocation strategy (greedy max-reach, max-engagement, or tier-balanced), and the platform distributes spend across nano, micro, and macro Instagram creators — returning projected reach, engagement, and cost-per-engagement at a glance. Real creator data comes from the RapidAPI Instagram endpoint; when no key is configured the backend falls back to a deterministic generated dataset so the product always works.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Monorepo Layout
+
+```
+CreatorNexus/
+├── backend/      # Express API — auth, influencer data, allocation engine
+├── frontend/     # Next.js 16 + Tailwind v4 UI
+└── docs/         # db-schema.sql, running-locally.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quick Start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Backend (port 4000)
 
-## Learn More
+```bash
+cd backend
+cp .env.example .env   # fill values — leaving RAPIDAPI_* blank enables the generated fallback
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Frontend (port 3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cd frontend
+cp .env.example .env.local   # set NEXT_PUBLIC_API_BASE=http://localhost:4000 + Supabase vars
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Full setup guide (env vars, DB schema, auth notes, test commands):
+**[docs/running-locally.md](docs/running-locally.md)**
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, Tailwind CSS v4 |
+| Backend | Node.js, Express, TypeScript |
+| Auth | Supabase (email + password, JWT) |
+| Rate limiting / cache | Upstash Redis |
+| Influencer data | RapidAPI Instagram endpoint (+ generated fallback) |
+| Database | Supabase Postgres |
+| Testing | Vitest (both apps) |
+
+---
+
+## Run Tests
+
+```bash
+cd backend && npm test
+cd frontend && npm test
+```
+
+---
+
+## Developer
+
+Built by [Aryansh Kurmi](https://arukurmi.vercel.app/)

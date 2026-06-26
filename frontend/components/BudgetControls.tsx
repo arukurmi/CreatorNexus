@@ -35,10 +35,10 @@ const STRATEGIES: {
   icon: typeof TrendingUp
   hint: string
 }[] = [
-  { value: 'reach', label: 'Max Reach', icon: TrendingUp, hint: 'Spend the budget for the most total views.' },
-  { value: 'engagement', label: 'Max Engagement', icon: Heart, hint: 'Pick the most engaged creators within budget.' },
-  { value: 'value', label: 'Best Value', icon: Gem, hint: 'Best engagement & reach per rupee spent.' },
-  { value: 'count', label: 'Pick Count', icon: Hash, hint: 'Choose exactly how many creators you want.' },
+  { value: 'reach', label: 'Max Reach', icon: TrendingUp, hint: 'Most eyeballs per rupee; favours larger creators.' },
+  { value: 'engagement', label: 'Max Engagement', icon: Heart, hint: 'Highest engaged audience. May exceed your budget by up to 10% because the brand wants maximum engagement.' },
+  { value: 'value', label: 'Best Value', icon: Gem, hint: 'Best blend of reach and engagement per rupee.' },
+  { value: 'count', label: 'Pick Count', icon: Hash, hint: 'Exactly N best-fit creators within budget.' },
 ]
 
 export default function BudgetControls({

@@ -18,10 +18,11 @@ export class GeneratedProvider implements InfluencerProvider {
     for (const [lo, hi, count] of TIER_PLAN) {
       for (let k = 0; k < count; k++, i++) {
         const followers = Math.round(lo + (hi - lo) * rnd())
-        const engagement_rate = +(0.015 + 0.08 * rnd()).toFixed(4) // 1.5%–9.5%
-        const avg_views = Math.round(followers * (0.25 + 0.6 * rnd()))
-        const avg_likes = Math.round(followers * engagement_rate * (0.7 + 0.3 * rnd()))
-        const avg_comments = Math.round(avg_likes * (0.02 + 0.05 * rnd()))
+        const likesRate = 0.015 + 0.08 * rnd()                 // 1.5%–9.5% of followers
+        const avg_likes = Math.max(1, Math.round(followers * likesRate))
+        const avg_comments = Math.max(1, Math.round(avg_likes * (0.02 + 0.05 * rnd())))
+        const engagement_rate = +(((avg_likes + avg_comments) / followers).toFixed(4))
+        const avg_views = Math.max(1, Math.round(followers * (0.25 + 0.6 * rnd())))
         const handle = `${prefixes[i % prefixes.length]}${SUFFIXES[i % SUFFIXES.length]}${i}`
         out.push({
           handle, avatar_url: `https://i.pravatar.cc/150?u=${handle}`,

@@ -7,6 +7,7 @@ describe('GeneratedProvider', () => {
 
   it('is deterministic across calls', async () => {
     const a = await p.getByNiche('fashion')
+    await p.getByNiche('pets')
     const b = await p.getByNiche('fashion')
     expect(a).toEqual(b)
   })
@@ -20,6 +21,9 @@ describe('GeneratedProvider', () => {
         expect(c.followers).toBeGreaterThan(0)
         expect(c.engagement_rate).toBeGreaterThan(0)
         expect(c.avg_views).toBeGreaterThan(0)
+        expect(c.avg_likes).toBeGreaterThan(0)
+        expect(c.avg_comments).toBeGreaterThan(0)
+        expect(c.engagement_rate).toBeCloseTo((c.avg_likes + c.avg_comments) / c.followers, 4)
         // a creator's followers must map to a real tier bracket
         expect(['nano','micro','macro']).toContain(getTier(c.followers))
       }

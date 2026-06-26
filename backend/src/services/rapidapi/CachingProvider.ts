@@ -18,7 +18,7 @@ export class CachingProvider implements InfluencerProvider {
     const hit = await this.store.get(key)
     if (hit) return JSON.parse(hit) as RawCreatorSignals[]
     const fresh = await this.inner.getByNiche(niche)
-    await this.store.set(key, JSON.stringify(fresh), this.ttlSec)
+    await this.store.set(key, JSON.stringify(fresh), this.ttlSec).catch(() => {})
     return fresh
   }
 }

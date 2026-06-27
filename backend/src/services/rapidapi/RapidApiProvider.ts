@@ -1,7 +1,7 @@
 import type { InfluencerProvider } from './InfluencerProvider.js'
 import type { Niche, RawCreatorSignals } from '../../types/index.js'
 import { GeneratedProvider } from './GeneratedProvider.js'
-import { REAL_HANDLES } from './handles.js'
+import { REAL_HANDLES, COUNTRY, type CuratedCreator } from './handles.js'
 import { env } from '../../config/env.js'
 
 type FetchFn = (url: string, init?: RequestInit) => Promise<Response>
@@ -46,7 +46,7 @@ export class RapidApiProvider implements InfluencerProvider {
     this.debug = opts.debug ?? false
   }
 
-  private seedHandles(niche: Niche): string[] {
+  private seedHandles(niche: Niche): CuratedCreator[] {
     return (REAL_HANDLES[niche] ?? []).slice(0, 12)
   }
 
@@ -62,12 +62,17 @@ export class RapidApiProvider implements InfluencerProvider {
     return res.json()
   }
 
-  private async fetchProfile(handle: string, niche: Niche): Promise<RawCreatorSignals | null> {
+  private async fetchProfile(creator: CuratedCreator, niche: Niche): Promise<RawCreatorSignals | null> {
+    const handle = creator.handle
     try {
       const info = await this.get('/v1/info', handle)
       if (info == null) return null
       if (this.debug) console.warn(`[rapidapi] info(${handle})=`, JSON.stringify(info).slice(0, 500))
       const data = (info as Record<string, unknown>).data ?? info
+
+      // Skip accounts that don't exist or are private — a brand can't act on them.
+      const isPrivate = pick(data, ['is_private', 'user.is_private']) === true
+      if (isPrivate) return null
 
       const followers = num(pick(data, [
         'follower_count', 'edge_followed_by.count', 'followers', 'user.follower_count', 'user.edge_followed_by.count',
@@ -95,7 +100,12 @@ export class RapidApiProvider implements InfluencerProvider {
       if (avg_views === 0) avg_views = Math.max(1, Math.round(followers * 0.4))
       const engagement_rate = +(((avg_likes + avg_comments) / followers).toFixed(4))
 
-      return { handle: username, avatar_url, followers, avg_views, avg_likes, avg_comments, engagement_rate, niche }
+      // verified: the account resolved on the live API → it's a real, public,
+      // openable profile. city comes from curation so the city filter works.
+      return {
+        handle: username, avatar_url, followers, avg_views, avg_likes, avg_comments,
+        engagement_rate, niche, country: COUNTRY, city: creator.city, verified: true,
+      }
     } catch {
       return null
     }
@@ -103,7 +113,7 @@ export class RapidApiProvider implements InfluencerProvider {
 
   async getByNiche(niche: Niche): Promise<RawCreatorSignals[]> {
     const results = await Promise.all(
-      this.seedHandles(niche).map((h) => this.fetchProfile(h, niche)),
+      this.seedHandles(niche).map((c) => this.fetchProfile(c, niche)),
     )
     return results.filter((r): r is RawCreatorSignals => r !== null)
   }

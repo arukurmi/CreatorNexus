@@ -55,7 +55,7 @@ describe('RapidApiProvider (instagram-scraper-api2)', () => {
   })
 
   it('skips a handle whose info request fails, keeps the rest', async () => {
-    const target = REAL_HANDLES.fashion[0]
+    const target = REAL_HANDLES.fashion[0].handle
     const p = new RapidApiProvider({ key: 'k', host: 'h', fetchFn: router({ failInfoFor: target }) })
     const list = await p.getByNiche('fashion')
     expect(list).toHaveLength(REAL_HANDLES.fashion.length - 1)

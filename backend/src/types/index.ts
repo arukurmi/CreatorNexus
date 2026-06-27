@@ -20,6 +20,13 @@ export interface RawCreatorSignals {
   avg_comments: number
   engagement_rate: number
   niche: Niche
+  // Location — creators are India-only; city is used for the optional city filter.
+  country?: string
+  city?: string
+  // True ONLY for accounts confirmed to exist via the live API (real, public,
+  // not private). Generated/demo creators are false so the UI never links to a
+  // non-existent Instagram profile.
+  verified?: boolean
 }
 
 export interface Influencer extends RawCreatorSignals {

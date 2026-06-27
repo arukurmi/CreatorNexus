@@ -1,7 +1,7 @@
 import type { InfluencerProvider } from './InfluencerProvider.js'
 import type { Niche, RawCreatorSignals } from '../../types/index.js'
 import { seeded, hashString } from '../../lib/prng.js'
-import { NICHE_PREFIXES, SUFFIXES } from './handles.js'
+import { NICHE_PREFIXES, SUFFIXES, INDIAN_CITIES, COUNTRY } from './handles.js'
 
 const TIER_PLAN: Array<[min: number, max: number, count: number]> = [
   [2_000, 9_500, 8],     // nano
@@ -24,9 +24,12 @@ export class GeneratedProvider implements InfluencerProvider {
         const engagement_rate = +(((avg_likes + avg_comments) / followers).toFixed(4))
         const avg_views = Math.max(1, Math.round(followers * (0.25 + 0.6 * rnd())))
         const handle = `${prefixes[i % prefixes.length]}${SUFFIXES[i % SUFFIXES.length]}${i}`
+        // verified:false — these are synthetic demo accounts that do NOT exist on
+        // Instagram, so the UI must not link to them. City lets the filter work.
         out.push({
           handle, avatar_url: `https://i.pravatar.cc/150?u=${handle}`,
           followers, avg_views, avg_likes, avg_comments, engagement_rate, niche,
+          country: COUNTRY, city: INDIAN_CITIES[i % INDIAN_CITIES.length], verified: false,
         })
       }
     }

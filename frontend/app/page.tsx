@@ -5,21 +5,27 @@ import { motion } from 'framer-motion'
 import { Store, ArrowRight, Sparkles, Wallet, MapPin, BarChart3 } from 'lucide-react'
 import Footer from '@/components/Footer'
 
-// Inline Instagram glyph with the brand gradient (avoids icon-set drift).
+// Inline Instagram glyph with the authentic corner-to-corner brand gradient.
 function InstagramGlyph({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>
-        <linearGradient id="ig" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0%" stopColor="#feda75" />
-          <stop offset="35%" stopColor="#fa7e1e" />
-          <stop offset="65%" stopColor="#d62976" />
-          <stop offset="100%" stopColor="#962fbf" />
-        </linearGradient>
+        <radialGradient id="igGrad" cx="28%" cy="105%" r="135%">
+          <stop offset="0%" stopColor="#ffd676" />
+          <stop offset="22%" stopColor="#f7a01f" />
+          <stop offset="42%" stopColor="#f33d4f" />
+          <stop offset="62%" stopColor="#d6249f" />
+          <stop offset="100%" stopColor="#3b5fe2" />
+        </radialGradient>
       </defs>
-      <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig)" />
-      <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" strokeWidth="1.8" />
-      <circle cx="17" cy="7" r="1.2" fill="#fff" />
+      {/* gradient tile */}
+      <rect x="1" y="1" width="22" height="22" rx="7" fill="url(#igGrad)" />
+      {/* camera body */}
+      <rect x="5" y="5" width="14" height="14" rx="4.4" fill="none" stroke="#fff" strokeWidth="1.7" />
+      {/* lens */}
+      <circle cx="12" cy="12" r="3.6" fill="none" stroke="#fff" strokeWidth="1.7" />
+      {/* flash dot */}
+      <circle cx="16.6" cy="7.4" r="1.15" fill="#fff" />
     </svg>
   )
 }
@@ -82,8 +88,8 @@ export default function LandingPage() {
           transition={{ duration: 0.55, delay: 0.1 }}
         >
           Tell us your budget and niche. We match your D2C brand with the best
-          nano, micro &amp; macro creators across India — and exhaust every rupee
-          for maximum reach.
+          nano, micro &amp; macro creators — and exhaust every rupee for maximum
+          reach.
         </motion.p>
 
         {/* Brand ↔ Instagram handshake animation */}
@@ -107,7 +113,7 @@ export default function LandingPage() {
         <div className="mt-16 grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             { icon: Wallet, title: 'Budget-first', body: 'Set a budget; we allocate spend across tiers to exhaust it optimally.' },
-            { icon: MapPin, title: 'India-focused', body: 'Indian creators, with an optional city filter for local campaigns.' },
+            { icon: MapPin, title: 'Creators-focused', body: 'Nano to macro creators, with an optional city / local filter.' },
             { icon: BarChart3, title: 'Real metrics', body: 'Reach, engagement and a quote range computed for every creator.' },
           ].map(({ icon: Icon, title, body }, i) => (
             <motion.div
@@ -146,17 +152,20 @@ function HandshakeAnimation() {
         <span className="text-sm font-bold text-foreground">D2C Brand</span>
       </motion.div>
 
-      {/* Handshake — pops in once both sides arrive, then breathes */}
+      {/* Handshake — pops in once both sides arrive; grows ~3x on hover */}
       <motion.div
-        className="z-10 select-none text-5xl sm:text-6xl"
+        className="z-20 cursor-pointer select-none text-5xl drop-shadow-sm sm:text-6xl"
+        title="The perfect match"
         initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: [0, 1.25, 1], opacity: 1 }}
+        animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.95, ease: 'backOut' }}
+        whileHover={{ scale: 3, transition: { type: 'spring', stiffness: 180, damping: 14 } }}
+        whileTap={{ scale: 2.6 }}
       >
         <motion.span
           className="inline-block"
-          animate={{ scale: [1, 1.12, 1], rotate: [0, -6, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, delay: 1.6, ease: 'easeInOut' }}
+          animate={{ rotate: [0, -8, 0], y: [0, -3, 0] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 1.6, ease: 'easeInOut' }}
         >
           🤝
         </motion.span>

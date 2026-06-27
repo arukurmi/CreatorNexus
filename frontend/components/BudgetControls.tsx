@@ -179,7 +179,7 @@ export default function BudgetControls({
       <div className="mt-6">
         <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
           <MapPin className="h-4 w-4 text-primary" />
-          City <span className="font-normal text-foreground/40">(optional — India-wide if blank)</span>
+          City <span className="font-normal text-foreground/40">(optional — all locations if blank)</span>
         </label>
         <div className="relative">
           <select
@@ -187,7 +187,7 @@ export default function BudgetControls({
             onChange={(e) => onCityChange(e.target.value)}
             className="w-full cursor-pointer appearance-none rounded-xl border border-border bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary focus:outline-none"
           >
-            <option value="">🇮🇳 All India</option>
+            <option value="">🌐 All locations</option>
             {CITIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}

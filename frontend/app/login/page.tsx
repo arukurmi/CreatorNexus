@@ -21,7 +21,7 @@ export default function LoginPage() {
 
   // Already signed in → go to dashboard
   useEffect(() => {
-    if (!loading && user) router.replace('/')
+    if (!loading && user) router.replace('/dashboard')
   }, [user, loading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +57,7 @@ export default function LoginPage() {
           password,
         })
         if (error) throw error
-        router.replace('/')
+        router.replace('/dashboard')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')

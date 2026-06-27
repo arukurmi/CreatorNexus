@@ -33,6 +33,11 @@ export interface Influencer {
   cost_min: number // INR — lowest a creator is likely to quote
   cost_max: number // INR — highest a creator is likely to quote
   niche: Niche
+  country?: string
+  city?: string
+  // true only for accounts confirmed real via the live API. Demo/generated = false,
+  // so the UI never links to a non-existent Instagram profile.
+  verified?: boolean
   metadata?: Record<string, unknown> // future LLM embeddings / brand safety flags
 }
 

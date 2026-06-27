@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Eye, Heart, Users, IndianRupee, ExternalLink, Check } from 'lucide-react'
+import { Eye, Heart, Users, IndianRupee, ExternalLink, Check, MapPin, FlaskConical } from 'lucide-react'
 import { Influencer } from '@/lib/types'
 import { getTier, TIER_META } from '@/lib/tier'
 import { instagramUrl } from '@/lib/instagram'
@@ -30,6 +30,8 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
     engagement_rate,
     cost_min,
     cost_max,
+    city,
+    verified,
   } = influencer
   const tier = getTier(followers)
   const tierMeta = TIER_META[tier]
@@ -43,7 +45,7 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
         isSelected ? 'ring-2 ring-primary/70' : 'ring-border/50 hover:ring-border'
       }`}
     >
-      {/* Top row: tier badge + Instagram link */}
+      {/* Top row: tier badge + Instagram link (only for verified, real accounts) */}
       <div className="mb-3 flex items-center justify-between">
         <span
           className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${tierMeta.badge}`}
@@ -51,16 +53,25 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
         >
           {tierMeta.emoji} {tierMeta.label}
         </span>
-        <a
-          href={instagramUrl(handle)}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Open ${handle} on Instagram`}
-          title="Open on Instagram"
-          className="flex h-7 w-7 items-center justify-center rounded-full text-foreground/40 transition hover:bg-muted hover:text-primary"
-        >
-          <ExternalLink className="h-4 w-4" />
-        </a>
+        {verified ? (
+          <a
+            href={instagramUrl(handle)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open ${handle} on Instagram`}
+            title="Open verified profile on Instagram"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-foreground/40 transition hover:bg-muted hover:text-primary"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        ) : (
+          <span
+            title="Demo data — not a real Instagram account. Add a RapidAPI key for live, openable profiles."
+            className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-600 ring-1 ring-amber-200"
+          >
+            <FlaskConical className="h-3 w-3" /> Demo
+          </span>
+        )}
       </div>
 
       {/* Avatar + handle */}
@@ -71,8 +82,13 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
         </div>
         <div className="min-w-0">
           <p className="truncate font-bold text-foreground">{handle}</p>
-          <p className="text-xs text-foreground/50">
-            {(engagement_rate * 100).toFixed(1)}% engagement
+          <p className="flex items-center gap-2 text-xs text-foreground/50">
+            <span>{(engagement_rate * 100).toFixed(1)}% engagement</span>
+            {city && (
+              <span className="flex items-center gap-0.5">
+                <MapPin className="h-3 w-3" /> {city}
+              </span>
+            )}
           </p>
         </div>
       </div>

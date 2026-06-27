@@ -13,20 +13,29 @@ import {
   Hash,
   Minus,
   Plus,
+  MapPin,
 } from 'lucide-react'
 import { Niche, AllocationStrategy } from '@/lib/types'
 import { NICHES } from '@/lib/niches'
+
+// Indian cities for the optional location filter (must match backend tags).
+const CITIES = [
+  'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Chennai',
+  'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Chandigarh',
+]
 
 interface Props {
   budget: number
   niche: Niche
   strategy: AllocationStrategy
   count: number
+  city: string
   maxCount: number
   onBudgetChange: (value: number) => void
   onNicheChange: (value: Niche) => void
   onStrategyChange: (value: AllocationStrategy) => void
   onCountChange: (value: number) => void
+  onCityChange: (value: string) => void
 }
 
 const STRATEGIES: {
@@ -46,11 +55,13 @@ export default function BudgetControls({
   niche,
   strategy,
   count,
+  city,
   maxCount,
   onBudgetChange,
   onNicheChange,
   onStrategyChange,
   onCountChange,
+  onCityChange,
 }: Props) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -161,6 +172,27 @@ export default function BudgetControls({
               </motion.ul>
             )}
           </AnimatePresence>
+        </div>
+      </div>
+
+      {/* City filter (optional) */}
+      <div className="mt-6">
+        <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
+          <MapPin className="h-4 w-4 text-primary" />
+          City <span className="font-normal text-foreground/40">(optional — India-wide if blank)</span>
+        </label>
+        <div className="relative">
+          <select
+            value={city}
+            onChange={(e) => onCityChange(e.target.value)}
+            className="w-full cursor-pointer appearance-none rounded-xl border border-border bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary focus:outline-none"
+          >
+            <option value="">🇮🇳 All India</option>
+            {CITIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
         </div>
       </div>
 

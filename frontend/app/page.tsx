@@ -31,6 +31,7 @@ export default function DashboardPage() {
   const [niche, setNiche] = useState<Niche>(DEFAULT_NICHE)
   const [strategy, setStrategy] = useState<AllocationStrategy>('reach')
   const [count, setCount] = useState(5)
+  const [city, setCity] = useState('') // '' = All India
 
   const [apiResult, setApiResult] = useState<ApiResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -51,7 +52,13 @@ export default function DashboardPage() {
       }
 
       const res = await allocateViaApi<ApiResult>(
-        { budget, niche, strategy, count: strategy === 'count' ? count : undefined },
+        {
+          budget,
+          niche,
+          strategy,
+          count: strategy === 'count' ? count : undefined,
+          city: city.trim() || undefined,
+        },
         token,
         { signal },
       )
@@ -62,7 +69,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [budget, niche, strategy, count])
+  }, [budget, niche, strategy, count, city])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -114,11 +121,13 @@ export default function DashboardPage() {
               niche={niche}
               strategy={strategy}
               count={count}
+              city={city}
               maxCount={creatorsConsidered}
               onBudgetChange={setBudget}
               onNicheChange={setNiche}
               onStrategyChange={setStrategy}
               onCountChange={setCount}
+              onCityChange={setCity}
             />
           </div>
 

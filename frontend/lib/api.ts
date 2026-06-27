@@ -1,6 +1,6 @@
 import type { AllocationStrategy } from './types'
 
-interface AllocParams { budget: number; niche: string; strategy: AllocationStrategy; count?: number }
+interface AllocParams { budget: number; niche: string; strategy: AllocationStrategy; count?: number; city?: string }
 interface Opts { base?: string; fetchFn?: typeof fetch; signal?: AbortSignal }
 
 export async function allocateViaApi<T = unknown>(p: AllocParams, token: string, opts: Opts = {}): Promise<T> {

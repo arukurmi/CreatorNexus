@@ -5,12 +5,7 @@ import { REAL_HANDLES, COUNTRY, type CuratedCreator } from './handles.js'
 import { env } from '../../config/env.js'
 
 type FetchFn = (url: string, init?: RequestInit) => Promise<Response>
-interface Opts { key: string; host: string; fetchFn?: FetchFn; debug?: boolean }
-
-function avg(xs: number[]): number {
-  const v = xs.filter((n) => Number.isFinite(n) && n > 0)
-  return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : 0
-}
+interface Opts { key: string; host: string; fetchFn?: FetchFn; debug?: boolean; profilePath?: string }
 
 // Tries several field paths because RapidAPI products nest data differently.
 function pick(obj: unknown, paths: string[]): unknown {
@@ -33,30 +28,36 @@ function num(v: unknown): number {
 }
 
 /**
- * Live provider for the RapidAPI "instagram-scraper-api2" product.
- * Per handle: GET /v1/info (followers, avatar) + GET /v1/posts (engagement).
- * Field extraction is defensive (multiple candidate paths under `data`) and
- * degrades gracefully — a profile that can't be read is skipped, not fatal.
+ * Live provider for the RapidAPI "Instagram Scraper 2025" product
+ * (host instagram-scraper-20251.p.rapidapi.com). ONE request per handle:
+ * GET /userinfo/?username_or_id=<handle>&include_about=true&url_embed_safe=true
+ * — deliberately no per-post call, to conserve the plan's monthly request quota.
+ * Engagement is estimated from followers (the profile endpoint has no per-post
+ * metrics). Field extraction is defensive; private/non-existent profiles are skipped.
  */
 export class RapidApiProvider implements InfluencerProvider {
   private fetchFn: FetchFn
   private debug: boolean
+  private profilePath: string
   constructor(private opts: Opts) {
     this.fetchFn = opts.fetchFn ?? (globalThis.fetch as FetchFn)
     this.debug = opts.debug ?? false
+    this.profilePath = opts.profilePath ?? '/userinfo/'
   }
 
   private seedHandles(niche: Niche): CuratedCreator[] {
     return (REAL_HANDLES[niche] ?? []).slice(0, 12)
   }
 
-  private async get(path: string, handle: string): Promise<unknown | null> {
-    const url = `https://${this.opts.host}${path}?username_or_id_or_url=${encodeURIComponent(handle)}`
+  private async getInfo(handle: string): Promise<unknown | null> {
+    const url =
+      `https://${this.opts.host}${this.profilePath}` +
+      `?username_or_id=${encodeURIComponent(handle)}&include_about=true&url_embed_safe=true`
     const res = await this.fetchFn(url, {
       headers: { 'x-rapidapi-key': this.opts.key, 'x-rapidapi-host': this.opts.host },
     })
     if (!res.ok) {
-      if (this.debug) console.warn(`[rapidapi] ${path} ${handle} → HTTP ${res.status}`)
+      if (this.debug) console.warn(`[rapidapi] userinfo ${handle} → HTTP ${res.status}`)
       return null
     }
     return res.json()
@@ -65,46 +66,36 @@ export class RapidApiProvider implements InfluencerProvider {
   private async fetchProfile(creator: CuratedCreator, niche: Niche): Promise<RawCreatorSignals | null> {
     const handle = creator.handle
     try {
-      const info = await this.get('/v1/info', handle)
+      const info = await this.getInfo(handle)
       if (info == null) return null
-      if (this.debug) console.warn(`[rapidapi] info(${handle})=`, JSON.stringify(info).slice(0, 500))
+      if (this.debug) console.warn(`[rapidapi] info(${handle})=`, JSON.stringify(info).slice(0, 400))
       const data = (info as Record<string, unknown>).data ?? info
 
-      // Skip accounts that don't exist or are private — a brand can't act on them.
-      const isPrivate = pick(data, ['is_private', 'user.is_private']) === true
-      if (isPrivate) return null
+      // Skip private / non-existent accounts — a brand can't act on them.
+      if (pick(data, ['is_private', 'user.is_private']) === true) return null
 
       const followers = num(pick(data, [
-        'follower_count', 'edge_followed_by.count', 'followers', 'user.follower_count', 'user.edge_followed_by.count',
+        'follower_count', 'edge_followed_by.count', 'followers', 'user.follower_count',
       ]))
       if (!followers) return null
       const username = (pick(data, ['username', 'user.username']) as string) ?? handle
       const avatar_url = (pick(data, [
-        'profile_pic_url_hd', 'profile_pic_url', 'hd_profile_pic_url_info.url', 'user.profile_pic_url',
+        'profile_pic_url_hd', 'hd_profile_pic_url_info.url', 'profile_pic_url', 'user.profile_pic_url',
       ]) as string) ?? `https://i.pravatar.cc/150?u=${handle}`
+      const country = (pick(data, ['about.country', 'country']) as string) || COUNTRY
+      const city = (pick(data, ['location_data.city_name', 'city_name']) as string) || creator.city
 
-      // Recent posts → engagement. Best-effort; degrade to heuristics if unavailable.
-      let avg_likes = 0, avg_comments = 0, avg_views = 0
-      try {
-        const posts = await this.get('/v1/posts', handle)
-        const items = (pick(posts, ['data.items', 'items', 'data']) as unknown[]) ?? []
-        const arr = Array.isArray(items) ? items : []
-        avg_likes = avg(arr.map((p) => num(pick(p, ['like_count', 'edge_liked_by.count', 'likes']))))
-        avg_comments = avg(arr.map((p) => num(pick(p, ['comment_count', 'edge_media_to_comment.count', 'comments']))))
-        avg_views = avg(arr.map((p) => num(pick(p, ['play_count', 'view_count', 'ig_play_count', 'video_view_count']))))
-      } catch { /* posts optional */ }
-
-      // Fallbacks so every resolved profile yields valid, positive signals.
-      if (avg_likes === 0) avg_likes = Math.max(1, Math.round(followers * 0.03))
-      if (avg_comments === 0) avg_comments = Math.max(1, Math.round(avg_likes * 0.03))
-      if (avg_views === 0) avg_views = Math.max(1, Math.round(followers * 0.4))
+      // Engagement estimated from followers (profile endpoint has no per-post metrics;
+      // keeps it to ONE request per creator to conserve the monthly quota).
+      const avg_likes = Math.max(1, Math.round(followers * 0.03))
+      const avg_comments = Math.max(1, Math.round(avg_likes * 0.03))
+      const avg_views = Math.max(1, Math.round(followers * 0.4))
       const engagement_rate = +(((avg_likes + avg_comments) / followers).toFixed(4))
 
-      // verified: the account resolved on the live API → it's a real, public,
-      // openable profile. city comes from curation so the city filter works.
+      // verified: the profile resolved on the live API → real, public, openable.
       return {
         handle: username, avatar_url, followers, avg_views, avg_likes, avg_comments,
-        engagement_rate, niche, country: COUNTRY, city: creator.city, verified: true,
+        engagement_rate, niche, country, city: city || undefined, verified: true,
       }
     } catch {
       return null
@@ -131,6 +122,7 @@ export function getProvider(): InfluencerProvider {
       key: env.rapidApiKey,
       host: env.rapidApiHost,
       debug: env.rapidApiDebug,
+      profilePath: env.rapidApiProfilePath,
     })
     const fallback = new GeneratedProvider()
     return {

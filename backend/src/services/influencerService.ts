@@ -7,11 +7,12 @@ import { getTier } from '../lib/tier.js'
 import { getPricer } from './pricing/index.js'
 import { resolvePricingConfig, type ResolveCtx } from '../config/pricingConfig.js'
 import { hashString } from '../lib/prng.js'
+import { env } from '../config/env.js'
 
 interface Opts { provider?: InfluencerProvider; ctx?: ResolveCtx; city?: string }
 
 export async function getPricedCreators(niche: Niche, opts: Opts = {}): Promise<Influencer[]> {
-  const provider = opts.provider ?? new CachingProvider(getProvider(), getCacheStore())
+  const provider = opts.provider ?? new CachingProvider(getProvider(), getCacheStore(), env.creatorsCacheTtlSec)
   const cfg = resolvePricingConfig(opts.ctx)
   const pricer = getPricer(cfg.model)
   let raw = await provider.getByNiche(niche)

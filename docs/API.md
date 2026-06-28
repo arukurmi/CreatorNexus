@@ -4,6 +4,16 @@ The backend is an Express + TypeScript service. Base URL in local dev: `http://l
 
 > **Postman collection:** [`creator-nexus.postman_collection.json`](./creator-nexus.postman_collection.json)
 > In Postman: **Import → File →** select that file (or paste its raw URL). It ships with all 13 requests, folder descriptions, and example bodies.
+>
+> **Switch Local ↔ Production with one dropdown.** Every request's scheme+domain is the
+> `{{base_url}}` variable, so you never edit URLs. Import the two environment files and pick
+> one from the environment selector (top-right in Postman):
+> - [`creator-nexus.local.postman_environment.json`](./creator-nexus.local.postman_environment.json) → `base_url = http://localhost:4000`
+> - [`creator-nexus.production.postman_environment.json`](./creator-nexus.production.postman_environment.json) → `base_url = https://creatornexus.onrender.com`
+>
+> Selecting an environment overrides `base_url` for the whole collection — health, influencers,
+> allocate, brands, campaigns all follow it. Set `token` in the active environment to your
+> Supabase access token.
 
 ## Authentication
 

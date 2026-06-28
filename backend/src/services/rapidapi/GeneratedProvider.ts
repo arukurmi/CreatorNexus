@@ -3,10 +3,12 @@ import type { Niche, RawCreatorSignals } from '../../types/index.js'
 import { seeded, hashString } from '../../lib/prng.js'
 import { NICHE_PREFIXES, SUFFIXES, INDIAN_CITIES, COUNTRY } from './handles.js'
 
+// Generous demo volume so buckets stay full even after a city filter (creators
+// are spread across ~10 cities, so each city gets several per tier).
 const TIER_PLAN: Array<[min: number, max: number, count: number]> = [
-  [2_000, 9_500, 8],     // nano
-  [12_000, 95_000, 7],   // micro
-  [120_000, 650_000, 5], // macro
+  [1_200, 9_800, 50],     // nano
+  [11_000, 98_000, 30],   // micro
+  [110_000, 1_900_000, 16], // macro
 ]
 
 export class GeneratedProvider implements InfluencerProvider {

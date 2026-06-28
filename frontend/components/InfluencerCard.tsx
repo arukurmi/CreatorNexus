@@ -80,16 +80,17 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={avatar_url} alt={handle} className="h-full w-full object-cover" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate font-bold text-foreground">{handle}</p>
-          <p className="flex items-center gap-2 text-xs text-foreground/50">
-            <span>{(engagement_rate * 100).toFixed(1)}% engagement</span>
-            {city && (
-              <span className="flex items-center gap-0.5">
-                <MapPin className="h-3 w-3" /> {city}
-              </span>
-            )}
+          <p className="truncate text-xs text-foreground/50">
+            {(engagement_rate * 100).toFixed(1)}% engagement
           </p>
+          {city && (
+            <p className="flex items-center gap-0.5 text-xs text-foreground/50">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{city}</span>
+            </p>
+          )}
         </div>
       </div>
 

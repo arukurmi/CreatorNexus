@@ -42,7 +42,7 @@ export default function Header() {
         >
           {configured && user ? (
             <>
-              <span className="hidden text-xs font-medium text-foreground/60 sm:inline">
+              <span className="hidden max-w-[40vw] truncate text-xs font-medium text-foreground/60 sm:inline-block sm:align-middle md:max-w-[220px]">
                 {user.email}
               </span>
               <button
@@ -55,7 +55,7 @@ export default function Header() {
             </>
           ) : (
             <span className="rounded-full bg-secondary/60 px-4 py-1.5 text-xs font-semibold text-foreground/70 ring-1 ring-secondary">
-              MVP Demo · India 🇮🇳
+              MVP Demo
             </span>
           )}
         </motion.div>

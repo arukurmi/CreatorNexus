@@ -1,7 +1,8 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
-import { Sparkles, IndianRupee, TrendingUp } from 'lucide-react'
+import { Sparkles, IndianRupee, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react'
 import InfluencerCard from './InfluencerCard'
 import { Influencer, BucketResult, Tier } from '@/lib/types'
 import { getTier, TIER_META, TIER_ORDER } from '@/lib/tier'
@@ -10,6 +11,9 @@ interface Props {
   allInfluencers: Influencer[]
   result: BucketResult
 }
+
+// Cards shown per page in each tier bucket (2 rows of 5 on wide screens).
+const PAGE_SIZE = 10
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 24, scale: 0.97 },
@@ -76,54 +80,13 @@ export default function BucketGrid({ allInfluencers, result }: Props) {
         {TIER_ORDER.map((tier) => {
           const list = buckets[tier]
           if (list.length === 0) return null
-          const meta = TIER_META[tier]
-          const selectedInTier = list.filter((i) => selectedIds.has(i.id)).length
-
           return (
-            <section key={tier}>
-              {/* Bucket header */}
-              <div
-                className={`mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-gradient-to-r ${meta.band} to-transparent px-4 py-3`}
-              >
-                <span className="text-lg">{meta.emoji}</span>
-                <h3 className="text-base font-bold text-foreground">
-                  {meta.label} bucket
-                </h3>
-                <span className="text-xs font-medium text-foreground/50">
-                  {meta.range}
-                </span>
-                <span className="ml-auto rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-semibold text-foreground/60 ring-1 ring-border/50">
-                  {selectedInTier} in bucket · {list.length} available
-                </span>
-                <p className="w-full text-xs text-foreground/45">{meta.blurb}</p>
-              </div>
-
-              {/* Cards */}
-              <motion.div
-                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                initial="hidden"
-                animate="visible"
-                variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-              >
-                <AnimatePresence mode="popLayout">
-                  {list.map((influencer) => (
-                    <motion.div
-                      key={influencer.id}
-                      layout
-                      variants={itemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <InfluencerCard
-                        influencer={influencer}
-                        isSelected={selectedIds.has(influencer.id)}
-                      />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            </section>
+            <TierBucket
+              key={tier}
+              tier={tier}
+              list={list}
+              selectedIds={selectedIds}
+            />
           )
         })}
       </div>
@@ -141,6 +104,96 @@ export default function BucketGrid({ allInfluencers, result }: Props) {
         </motion.p>
       )}
     </div>
+  )
+}
+
+function TierBucket({
+  tier,
+  list,
+  selectedIds,
+}: {
+  tier: Tier
+  list: Influencer[]
+  selectedIds: Set<string>
+}) {
+  const meta = TIER_META[tier]
+  const selectedInTier = list.filter((i) => selectedIds.has(i.id)).length
+  const [visible, setVisible] = useState(PAGE_SIZE)
+
+  // Reset paging whenever the bucket contents change (a new allocation).
+  useEffect(() => setVisible(PAGE_SIZE), [list.length, tier])
+
+  const shown = list.slice(0, visible)
+  const remaining = list.length - shown.length
+
+  return (
+    <section>
+      {/* Bucket header */}
+      <div
+        className={`mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-gradient-to-r ${meta.band} to-transparent px-4 py-3`}
+      >
+        <span className="text-lg">{meta.emoji}</span>
+        <h3 className="text-base font-bold text-foreground">{meta.label} bucket</h3>
+        <span className="text-xs font-medium text-foreground/50">{meta.range}</span>
+        <span className="ml-auto rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-semibold text-foreground/60 ring-1 ring-border/50">
+          {selectedInTier} in bucket · {list.length} available
+        </span>
+        <p className="w-full text-xs text-foreground/45">{meta.blurb}</p>
+      </div>
+
+      {/* Cards (paginated, 5 per row / 10 per page) */}
+      <motion.div
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.04 } } }}
+      >
+        <AnimatePresence mode="popLayout">
+          {shown.map((influencer) => (
+            <motion.div
+              key={influencer.id}
+              layout
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <InfluencerCard
+                influencer={influencer}
+                isSelected={selectedIds.has(influencer.id)}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Pagination controls */}
+      {list.length > PAGE_SIZE && (
+        <div className="mt-4 flex items-center justify-center gap-3">
+          {remaining > 0 && (
+            <button
+              type="button"
+              onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              className="flex items-center gap-1.5 rounded-xl border border-border bg-white/70 px-4 py-2 text-sm font-semibold text-foreground/70 transition hover:border-primary/40 hover:text-primary"
+            >
+              <ChevronDown className="h-4 w-4" />
+              Show {Math.min(PAGE_SIZE, remaining)} more
+              <span className="text-foreground/40">({remaining} left)</span>
+            </button>
+          )}
+          {visible > PAGE_SIZE && (
+            <button
+              type="button"
+              onClick={() => setVisible(PAGE_SIZE)}
+              className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-foreground/50 transition hover:text-foreground"
+            >
+              <ChevronUp className="h-4 w-4" />
+              Show less
+            </button>
+          )}
+        </div>
+      )}
+    </section>
   )
 }
 

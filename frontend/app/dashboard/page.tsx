@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import { FlaskConical } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AuthGate from '@/components/AuthGate'
@@ -120,6 +121,8 @@ export default function DashboardPage() {
 
   const allInfluencers: Influencer[] = apiResult?.selected ?? []
   const creatorsConsidered = apiResult?.creators_considered ?? 10
+  // Sample mode: the selected creators aren't live-verified Instagram accounts.
+  const isSample = allInfluencers.length > 0 && allInfluencers.some((c) => c.verified !== true)
 
   return (
     <AuthGate>
@@ -165,6 +168,24 @@ export default function DashboardPage() {
               onApply={applyFilters}
             />
           </div>
+
+          {/* Sample-data banner */}
+          {isSample && !loading && (
+            <motion.div
+              className="mb-6 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FlaskConical className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>
+                <strong>Showing sample creator data.</strong> These are realistic placeholders
+                for demonstrating budget allocation — not live Instagram accounts, so their
+                profiles aren&apos;t linked. Connect a live Instagram data source to see real,
+                openable creators.
+              </span>
+            </motion.div>
+          )}
 
           {/* Max-engagement buffer note */}
           {apiResult?.budget_buffer_applied && (

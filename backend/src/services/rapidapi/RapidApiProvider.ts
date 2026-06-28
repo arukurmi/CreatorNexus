@@ -117,7 +117,7 @@ export class RapidApiProvider implements InfluencerProvider {
  * empty page. With no key configured, the generated provider is used directly.
  */
 export function getProvider(): InfluencerProvider {
-  if (env.rapidApiKey && env.rapidApiHost) {
+  if (env.rapidApiEnabled && env.rapidApiKey && env.rapidApiHost) {
     const live = new RapidApiProvider({
       key: env.rapidApiKey,
       host: env.rapidApiHost,

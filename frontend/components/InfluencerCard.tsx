@@ -66,10 +66,10 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
           </a>
         ) : (
           <span
-            title="Demo data — not a real Instagram account. Add a RapidAPI key for live, openable profiles."
+            title="Sample data — a realistic placeholder, not a live Instagram account. Enable a live Instagram API for real, openable profiles."
             className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-600 ring-1 ring-amber-200"
           >
-            <FlaskConical className="h-3 w-3" /> Demo
+            <FlaskConical className="h-3 w-3" /> Sample
           </span>
         )}
       </div>

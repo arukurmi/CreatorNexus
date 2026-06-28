@@ -7,6 +7,9 @@ export const env = {
   upstashToken: process.env.UPSTASH_REDIS_REST_TOKEN ?? '',
   rapidApiKey: process.env.RAPIDAPI_KEY ?? '',
   rapidApiHost: process.env.RAPIDAPI_HOST ?? '',
+  // Live data is OPT-IN. Default false → use the unlimited generated dataset and
+  // never call the (rate-limited) API. Set RAPIDAPI_ENABLED=true to go live.
+  rapidApiEnabled: process.env.RAPIDAPI_ENABLED === 'true' || process.env.RAPIDAPI_ENABLED === '1',
   rapidApiDebug: process.env.RAPIDAPI_DEBUG === 'true' || process.env.RAPIDAPI_DEBUG === '1',
   // Profile endpoint path for the configured RapidAPI product (Instagram Scraper 2025).
   rapidApiProfilePath: process.env.RAPIDAPI_PROFILE_PATH ?? '/userinfo/',

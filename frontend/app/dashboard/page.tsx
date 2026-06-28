@@ -26,12 +26,32 @@ interface ApiResult {
   creators_considered: number
 }
 
+interface Filters {
+  budget: number
+  niche: Niche
+  strategy: AllocationStrategy
+  count: number
+  city: string
+}
+
+const DEFAULT_FILTERS: Filters = {
+  budget: DEFAULT_BUDGET,
+  niche: DEFAULT_NICHE,
+  strategy: 'reach',
+  count: 5,
+  city: '',
+}
+
 export default function DashboardPage() {
-  const [budget, setBudget] = useState(DEFAULT_BUDGET)
-  const [niche, setNiche] = useState<Niche>(DEFAULT_NICHE)
-  const [strategy, setStrategy] = useState<AllocationStrategy>('reach')
-  const [count, setCount] = useState(5)
-  const [city, setCity] = useState('') // '' = All India
+  // Live (draft) filter inputs — edited freely; only fetched when "applied".
+  const [budget, setBudget] = useState(DEFAULT_FILTERS.budget)
+  const [niche, setNiche] = useState<Niche>(DEFAULT_FILTERS.niche)
+  const [strategy, setStrategy] = useState<AllocationStrategy>(DEFAULT_FILTERS.strategy)
+  const [count, setCount] = useState(DEFAULT_FILTERS.count)
+  const [city, setCity] = useState(DEFAULT_FILTERS.city)
+
+  // The filters actually sent to the API. Changing this (via Apply) triggers a fetch.
+  const [applied, setApplied] = useState<Filters>(DEFAULT_FILTERS)
 
   const [apiResult, setApiResult] = useState<ApiResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -53,11 +73,11 @@ export default function DashboardPage() {
 
       const res = await allocateViaApi<ApiResult>(
         {
-          budget,
-          niche,
-          strategy,
-          count: strategy === 'count' ? count : undefined,
-          city: city.trim() || undefined,
+          budget: applied.budget,
+          niche: applied.niche,
+          strategy: applied.strategy,
+          count: applied.strategy === 'count' ? applied.count : undefined,
+          city: applied.city.trim() || undefined,
         },
         token,
         { signal },
@@ -69,13 +89,25 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [budget, niche, strategy, count, city])
+  }, [applied])
 
   useEffect(() => {
     const controller = new AbortController()
     fetchAllocation(controller.signal)
     return () => controller.abort()
   }, [fetchAllocation])
+
+  // Have the draft inputs diverged from what's currently shown?
+  const dirty =
+    budget !== applied.budget ||
+    niche !== applied.niche ||
+    strategy !== applied.strategy ||
+    (strategy === 'count' && count !== applied.count) ||
+    city !== applied.city
+
+  const applyFilters = useCallback(() => {
+    setApplied({ budget, niche, strategy, count, city })
+  }, [budget, niche, strategy, count, city])
 
   // Adapt API result to BucketResult for BucketGrid
   const bucketResult: BucketResult = apiResult
@@ -128,6 +160,9 @@ export default function DashboardPage() {
               onStrategyChange={setStrategy}
               onCountChange={setCount}
               onCityChange={setCity}
+              dirty={dirty}
+              loading={loading}
+              onApply={applyFilters}
             />
           </div>
 

@@ -14,6 +14,7 @@ import {
   Minus,
   Plus,
   MapPin,
+  RefreshCw,
 } from 'lucide-react'
 import { Niche, AllocationStrategy } from '@/lib/types'
 import { NICHES } from '@/lib/niches'
@@ -31,11 +32,14 @@ interface Props {
   count: number
   city: string
   maxCount: number
+  dirty: boolean
+  loading: boolean
   onBudgetChange: (value: number) => void
   onNicheChange: (value: Niche) => void
   onStrategyChange: (value: AllocationStrategy) => void
   onCountChange: (value: number) => void
   onCityChange: (value: string) => void
+  onApply: () => void
 }
 
 const STRATEGIES: {
@@ -57,11 +61,14 @@ export default function BudgetControls({
   count,
   city,
   maxCount,
+  dirty,
+  loading,
   onBudgetChange,
   onNicheChange,
   onStrategyChange,
   onCountChange,
   onCityChange,
+  onApply,
 }: Props) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -251,6 +258,35 @@ export default function BudgetControls({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Apply filters — fetches buckets for the current budget / niche / city / strategy */}
+      <div className="mt-6 flex flex-col items-center gap-2 border-t border-border/60 pt-5 sm:flex-row sm:justify-between">
+        <p className="text-xs text-foreground/50">
+          {dirty
+            ? 'Filters changed — click Apply to refresh your buckets.'
+            : 'Buckets reflect the applied filters.'}
+        </p>
+        <button
+          type="button"
+          onClick={onApply}
+          disabled={loading || !dirty}
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition sm:w-auto ${
+            dirty && !loading
+              ? 'shadow-soft bg-primary text-white hover:opacity-90'
+              : 'cursor-not-allowed bg-muted text-foreground/40'
+          }`}
+        >
+          {loading ? (
+            <>
+              <RefreshCw className="h-4 w-4 animate-spin" /> Applying…
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4" /> Apply Filters
+            </>
+          )}
+        </button>
       </div>
     </motion.div>
   )

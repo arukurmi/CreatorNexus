@@ -16,5 +16,9 @@ export const env = {
   // Cache priced creators per niche for a long time to conserve the API's monthly
   // request quota (default 7 days). Lower it for fresher data if your plan allows.
   creatorsCacheTtlSec: Number(process.env.CREATORS_CACHE_TTL_SEC ?? 604800),
+  // Gemini (AI Strategist) — backend only. Missing key → /api/ai/strategy returns 503.
+  geminiApiKey: process.env.GEMINI_API_KEY ?? '',
+  geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.0-flash',
+  geminiBaseUrl: process.env.GEMINI_BASE_URL ?? 'https://generativelanguage.googleapis.com',
   pricingModel: process.env.PRICING_MODEL ?? 'cpm',
 }

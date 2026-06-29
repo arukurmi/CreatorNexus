@@ -35,4 +35,10 @@ describe('POST /api/ai/strategy', () => {
     const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'a valid campaign brief' })
     expect(res.status).toBe(503)
   })
+
+  it('429 when the model is rate-limited / out of quota', async () => {
+    __setStrategyClient({ generate: async () => { const e = new Error('quota') as Error & { status?: number }; e.status = 429; throw e } })
+    const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'a valid campaign brief here' })
+    expect(res.status).toBe(429)
+  })
 })

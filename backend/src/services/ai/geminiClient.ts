@@ -30,7 +30,9 @@ export class GeminiClient {
     })
     if (!res.ok) {
       const detail = await res.text().catch(() => '')
-      throw new Error(`Gemini request failed: ${res.status} ${detail.slice(0, 200)}`)
+      const err = new Error(`Gemini request failed: ${res.status} ${detail.slice(0, 200)}`) as Error & { status?: number }
+      err.status = res.status
+      throw err
     }
     const data = (await res.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[]

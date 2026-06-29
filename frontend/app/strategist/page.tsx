@@ -29,6 +29,7 @@ export default function StrategistPage() {
     } catch (e) {
       const status = (e as { status?: number })?.status
       if (status === 503) setError('The AI Strategist isn\'t configured yet (missing Gemini API key).')
+      else if (status === 429) setError('The AI is rate-limited or out of free-tier Gemini quota. Please try again in a minute.')
       else if (status === 502) setError('The AI couldn\'t generate a strategy — the model request failed. Please try again.')
       else setError('Couldn\'t reach the AI Strategist. Please try again.')
     } finally {

@@ -30,8 +30,12 @@ aiStrategyRouter.post('/ai/strategy', requireAuth, async (req, res, next) => {
     res.json(result)
   } catch (err) {
     // Log the real Gemini error to the server (visible in Render → Logs); the
-    // client only gets a safe generic 502.
+    // client only gets a safe message.
     console.error('[ai/strategy] failed:', err instanceof Error ? err.message : err)
+    const status = (err as { status?: number })?.status
+    if (status === 429) {
+      return next(httpError(429, 'The AI is rate-limited or out of free-tier quota. Please try again in a minute.'))
+    }
     next(httpError(502, 'The AI service is unavailable right now. Please try again.'))
   }
 })

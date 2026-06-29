@@ -22,6 +22,10 @@ export async function getAiStrategy(brief: string, token: string, opts: Opts = {
     body: JSON.stringify({ brief }),
     signal: opts.signal,
   })
-  if (!res.ok) throw new Error(`ai strategy failed: ${res.status}`)
+  if (!res.ok) {
+    const err = new Error(`ai strategy failed: ${res.status}`) as Error & { status?: number }
+    err.status = res.status
+    throw err
+  }
   return res.json() as Promise<AiResult>
 }

@@ -28,7 +28,10 @@ aiStrategyRouter.post('/ai/strategy', requireAuth, async (req, res, next) => {
   try {
     const result = await getStrategy(parsed.data.brief, { client })
     res.json(result)
-  } catch {
+  } catch (err) {
+    // Log the real Gemini error to the server (visible in Render → Logs); the
+    // client only gets a safe generic 502.
+    console.error('[ai/strategy] failed:', err instanceof Error ? err.message : err)
     next(httpError(502, 'The AI service is unavailable right now. Please try again.'))
   }
 })

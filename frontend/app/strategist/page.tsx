@@ -26,8 +26,11 @@ export default function StrategistPage() {
       const token = (await supabase?.auth.getSession())?.data.session?.access_token ?? ''
       if (!token) { setError('Sign in to use the AI Strategist.'); setLoading(false); return }
       setResult(await getAiStrategy(brief, token))
-    } catch {
-      setError('The AI Strategist is unavailable right now. Please try again.')
+    } catch (e) {
+      const status = (e as { status?: number })?.status
+      if (status === 503) setError('The AI Strategist isn\'t configured yet (missing Gemini API key).')
+      else if (status === 502) setError('The AI couldn\'t generate a strategy — the model request failed. Please try again.')
+      else setError('Couldn\'t reach the AI Strategist. Please try again.')
     } finally {
       setLoading(false)
     }

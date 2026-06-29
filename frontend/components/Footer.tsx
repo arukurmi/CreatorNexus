@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-3 px-4 text-sm text-gray-500 sm:flex-row sm:justify-between sm:gap-0 sm:px-6 lg:px-8">
         {/* Left — copyright */}
         <p className="order-3 text-gray-400 sm:order-1">
-          © {year} Creator Nexus · Aryansh Kurmi
+          © {year} Creator Nexus
         </p>
 
         {/* Center — made with love in Bengaluru */}

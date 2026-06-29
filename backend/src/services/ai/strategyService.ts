@@ -42,18 +42,18 @@ export async function buildCandidates(perNiche = 8, provider?: InfluencerProvide
 }
 
 function buildPrompt(brief: string, candidates: Candidate[]): string {
+  // Compact CSV (id,niche,tier,followers,engagement%) — far fewer tokens than JSON.
+  // We only send what the model needs to PICK; handle/city/cost are mapped by id later.
+  const rows = candidates
+    .map((c) => `${c.id},${c.niche},${c.tier},${c.followers},${(c.engagement_rate * 100).toFixed(1)}`)
+    .join('\n')
   return [
     'You are an influencer-marketing strategist for Indian D2C brands.',
-    'Given the campaign brief and a list of available creators, return JSON that matches the schema.',
-    'Pick 6–12 creators from the list (by their exact "id") whose niche/tier/engagement best fit the brief,',
-    'favouring the tier_mix you recommend. recommended_niche MUST be one of:',
-    NICHES.join(', ') + '.',
-    '',
-    'CAMPAIGN BRIEF:',
-    brief,
-    '',
-    'AVAILABLE CREATORS (JSON):',
-    JSON.stringify(candidates),
+    'Pick 6-12 creators (by their exact id) that best fit the campaign brief, matching the tier_mix you recommend.',
+    `recommended_niche MUST be one of: ${NICHES.join(', ')}.`,
+    'CREATORS as CSV "id,niche,tier,followers,engagement%":',
+    rows,
+    `BRIEF: ${brief}`,
   ].join('\n')
 }
 

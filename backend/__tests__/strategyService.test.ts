@@ -7,7 +7,7 @@ import type { AiAdvisory } from '../src/services/ai/types.js'
 function fakeClient(advisory: Partial<AiAdvisory> = {}) {
   return {
     async generate(prompt: string) {
-      const ids = [...prompt.matchAll(/"id":"([^"]+)"/g)].map((m) => m[1]).slice(0, 2)
+      const ids = [...prompt.matchAll(/^([a-z]+-\d+),/gm)].map((m) => m[1]).slice(0, 2)
       const full: AiAdvisory = {
         recommended_niche: 'beauty',
         secondary_niches: ['fashion'],

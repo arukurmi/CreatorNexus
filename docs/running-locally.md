@@ -156,3 +156,10 @@ The API requires a valid Supabase session token (Bearer) for the following route
 - `GET /api/campaigns` / `POST /api/campaigns`
 
 Sign in via the frontend (`/login`) to obtain a session. The frontend attaches the token automatically to all API calls. Only `GET /api/health` and the auth exchange routes (`/api/auth/*`) are public.
+
+## AI Strategist (optional)
+
+The **AI Strategist** product (`/strategist`) needs a **Gemini** key. Set
+`GEMINI_API_KEY` in `backend/.env` (free at https://aistudio.google.com). Without it,
+`POST /api/ai/strategy` returns **503** and the UI shows a friendly "not configured"
+message. Default model is `gemini-2.0-flash` (override with `GEMINI_MODEL`).

@@ -36,6 +36,8 @@ Set these under the service's **Environment** tab. Mark secrets as secret.
 | `UPSTASH_REDIS_REST_TOKEN` | Same as local | No — reuse for testing |
 | `RAPIDAPI_KEY` | Your subscribed RapidAPI key | No — one key per RapidAPI account, works anywhere |
 | `RAPIDAPI_HOST` | `instagram-scraper-api2.p.rapidapi.com` | No |
+| `GEMINI_API_KEY` | Google AI Studio key (powers the AI Strategist) | Get one free at aistudio.google.com |
+| `GEMINI_MODEL` | `gemini-2.0-flash` (optional) | No |
 | `PRICING_MODEL` | `cpm` (optional) | No |
 | `SUPABASE_JWT_SECRET` | leave unset (currently unused) | No |
 | `RAPIDAPI_DEBUG` | leave unset in prod | No |

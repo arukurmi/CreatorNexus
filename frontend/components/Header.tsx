@@ -1,8 +1,36 @@
 'use client'
 
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { LogOut } from 'lucide-react'
 import { useAuth } from './AuthProvider'
+
+function ProductNav() {
+  const pathname = usePathname()
+  const items = [
+    { href: '/dashboard', label: 'Budget Studio' },
+    { href: '/strategist', label: 'AI Strategist ✨' },
+  ]
+  return (
+    <nav className="hidden items-center gap-1 rounded-full bg-muted p-1 sm:flex">
+      {items.map((it) => {
+        const active = pathname === it.href
+        return (
+          <Link
+            key={it.href}
+            href={it.href}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+              active ? 'bg-white text-primary shadow-sm' : 'text-foreground/60 hover:text-foreground'
+            }`}
+          >
+            {it.label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
 
 export default function Header() {
   const { user, configured, signOut } = useAuth()
@@ -32,6 +60,9 @@ export default function Header() {
             </span>
           </div>
         </motion.div>
+
+        {/* Product switcher */}
+        <ProductNav />
 
         {/* Right side */}
         <motion.div

@@ -96,6 +96,7 @@ export default function LandingPage() {
         <HandshakeAnimation />
 
         <motion.div
+          className="flex flex-col items-center gap-3 sm:flex-row"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.1 }}
@@ -106,6 +107,12 @@ export default function LandingPage() {
           >
             Start connecting with the right influencers now
             <ArrowRight className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/strategist"
+            className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 px-6 py-3.5 text-base font-bold text-primary transition hover:bg-primary/5"
+          >
+            Try the AI Strategist ✨
           </Link>
         </motion.div>
 

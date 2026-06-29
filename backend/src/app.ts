@@ -6,6 +6,7 @@ import { influencersRouter } from './routes/influencers.js'
 import { allocateRouter } from './routes/allocate.js'
 import { brandsRouter } from './routes/brands.js'
 import { campaignsRouter } from './routes/campaigns.js'
+import { aiStrategyRouter } from './routes/aiStrategy.js'
 import { rateLimit } from './middleware/rateLimit.js'
 import { errorHandler } from './middleware/errorHandler.js'
 
@@ -22,6 +23,7 @@ export function createApp(): Express {
   app.use('/api', allocateRouter)
   app.use('/api', brandsRouter)
   app.use('/api', campaignsRouter)
+  app.use('/api', aiStrategyRouter)
   app.use(errorHandler)
   return app
 }

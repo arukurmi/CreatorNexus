@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { Sparkles, IndianRupee, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react'
 import InfluencerCard from './InfluencerCard'
@@ -80,9 +80,10 @@ export default function BucketGrid({ allInfluencers, result }: Props) {
         {TIER_ORDER.map((tier) => {
           const list = buckets[tier]
           if (list.length === 0) return null
+          /** Keyed on size so a new allocation remounts the bucket and resets its paging. */
           return (
             <TierBucket
-              key={tier}
+              key={`${tier}-${list.length}`}
               tier={tier}
               list={list}
               selectedIds={selectedIds}
@@ -119,9 +120,6 @@ function TierBucket({
   const meta = TIER_META[tier]
   const selectedInTier = list.filter((i) => selectedIds.has(i.id)).length
   const [visible, setVisible] = useState(PAGE_SIZE)
-
-  // Reset paging whenever the bucket contents change (a new allocation).
-  useEffect(() => setVisible(PAGE_SIZE), [list.length, tier])
 
   const shown = list.slice(0, visible)
   const remaining = list.length - shown.length

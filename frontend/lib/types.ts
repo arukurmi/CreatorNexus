@@ -46,3 +46,9 @@ export interface BucketResult {
   total_projected_spend: number
   leftover_budget: number
 }
+
+export interface HealthFlag {
+  severity: 'info' | 'warn' | 'critical'
+  code: string
+  message: string
+}

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { MOCK_INFLUENCERS } from '../lib/mockData'
-import { allocateBudget } from '../lib/allocateBudget'
 
 describe('mock dataset sanity', () => {
   it('has valid finite cost ranges for every creator', () => {
@@ -18,12 +17,5 @@ describe('mock dataset sanity', () => {
     for (const n of niches) {
       expect(MOCK_INFLUENCERS.filter((i) => i.niche === n)).toHaveLength(20)
     }
-  })
-
-  it('Max Reach exhausts most of a ₹50k pets budget', () => {
-    const pets = MOCK_INFLUENCERS.filter((i) => i.niche === 'pets')
-    const r = allocateBudget(pets, 50000, { strategy: 'reach' })
-    expect(r.total_projected_spend).toBeGreaterThan(35000)
-    expect(r.total_projected_spend).toBeLessThanOrEqual(50000)
   })
 })

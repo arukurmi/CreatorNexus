@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, Suspense, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Sparkles, Loader2 } from 'lucide-react'
 import Header from '@/components/Header'
@@ -10,11 +11,41 @@ import AdvisoryCard from '@/components/AdvisoryCard'
 import BucketGrid from '@/components/BucketGrid'
 import { getAiStrategy, type AiResult } from '@/lib/aiApi'
 import { getSupabase } from '@/lib/supabase/client'
+import { MOCK_INFLUENCERS } from '@/lib/mockData'
+import { getTier, TIER_ORDER } from '@/lib/tier'
 import type { BucketResult } from '@/lib/types'
 
+const PREVIEW_CREATORS = TIER_ORDER.flatMap((tier) =>
+  MOCK_INFLUENCERS.filter((c) => c.niche === 'fitness' && getTier(c.followers) === tier).slice(0, 2),
+)
+
+const PREVIEW_RESULT: AiResult = {
+  advisory: {
+    recommended_niche: 'fitness',
+    secondary_niches: ['food', 'fashion'],
+    tier_mix: { nano: 55, micro: 35, macro: 10 },
+    rationale: 'At a ₹75k/month budget for a protein brand, a nano-heavy mix maximises authentic reach; micro adds credibility, one macro anchors the campaign.',
+    target_audience: 'Urban Indians 22–35 starting a fitness routine; Tier-1/Tier-2 metros.',
+    content_ideas: ['7-day protein challenge Reels', 'Honest first-try review', 'Gym-bag essentials feature'],
+    selected_creator_ids: PREVIEW_CREATORS.map((c) => c.id),
+  },
+  creators: PREVIEW_CREATORS,
+}
+
+/** useSearchParams needs a Suspense boundary or `next build` fails to prerender this page. */
 export default function StrategistPage() {
+  return (
+    <Suspense>
+      <Strategist />
+    </Suspense>
+  )
+}
+
+function Strategist() {
+  const preview = useSearchParams().get('preview') === '1'
+  const Gate = preview ? Fragment : AuthGate
   const [brief, setBrief] = useState('')
-  const [result, setResult] = useState<AiResult | null>(null)
+  const [result, setResult] = useState<AiResult | null>(preview ? PREVIEW_RESULT : null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -42,7 +73,7 @@ export default function StrategistPage() {
     : { selected_influencers: [], total_projected_spend: 0, leftover_budget: 0 }
 
   return (
-    <AuthGate>
+    <Gate>
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
@@ -87,6 +118,6 @@ export default function StrategistPage() {
         </main>
         <Footer />
       </div>
-    </AuthGate>
+    </Gate>
   )
 }

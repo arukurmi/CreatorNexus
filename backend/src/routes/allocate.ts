@@ -5,6 +5,8 @@ import { httpError } from '../middleware/errorHandler.js'
 import { NICHES } from '../types/index.js'
 import { getPricedCreators } from '../services/influencerService.js'
 import { allocate } from '../services/allocationService.js'
+import { budgetHealth } from '../services/allocation/diagnostics.js'
+import { allocationRationale } from '../services/allocation/rationale.js'
 
 export const allocateRouter = Router()
 const schema = z.object({
@@ -22,6 +24,9 @@ allocateRouter.post('/allocate', requireAuth, async (req, res, next) => {
     const { budget, niche, strategy, count, city } = parsed.data
     const creators = await getPricedCreators(niche as any, { city })
     const result = allocate(creators, budget, { strategy, count })
-    res.json({ ...result, city: city ?? null, creators_considered: creators.length })
+    res.json({
+      ...result, city: city ?? null, creators_considered: creators.length,
+      health: budgetHealth(result, creators), rationale: allocationRationale(result, creators, strategy),
+    })
   } catch (e) { next(e) }
 })

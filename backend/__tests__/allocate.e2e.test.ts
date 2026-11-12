@@ -26,4 +26,12 @@ describe('POST /api/allocate', () => {
     expect(res.body.effective_budget).toBe(88000)
     expect(res.body.budget_buffer_applied).toBe(true)
   })
+  it('returns health flags and rationale lines', async () => {
+    const res = await post({ budget: 80000, niche: 'tech', strategy: 'value' })
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body.health)).toBe(true)
+    expect(Array.isArray(res.body.rationale)).toBe(true)
+    expect(res.body.rationale.length).toBeGreaterThan(0)
+    for (const f of res.body.health) expect(f).toEqual({ severity: expect.any(String), code: expect.any(String), message: expect.any(String) })
+  })
 })

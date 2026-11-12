@@ -9,9 +9,11 @@ import AuthGate from '@/components/AuthGate'
 import BudgetControls from '@/components/BudgetControls'
 import MetricsLegend from '@/components/MetricsLegend'
 import BucketGrid from '@/components/BucketGrid'
+import BudgetHealth from '@/components/BudgetHealth'
+import WhySplit from '@/components/WhySplit'
 import { allocateViaApi } from '@/lib/api'
 import { getSupabase } from '@/lib/supabase/client'
-import { Niche, AllocationStrategy, Influencer, BucketResult } from '@/lib/types'
+import { Niche, AllocationStrategy, Influencer, BucketResult, HealthFlag } from '@/lib/types'
 
 const DEFAULT_BUDGET = 50000
 const DEFAULT_NICHE: Niche = 'pets'
@@ -25,6 +27,8 @@ interface ApiResult {
   budget_buffer_applied: boolean
   by_tier: { nano: TierStat; micro: TierStat; macro: TierStat }
   creators_considered: number
+  health: HealthFlag[]
+  rationale: string[]
 }
 
 interface Filters {
@@ -221,6 +225,13 @@ export default function DashboardPage() {
                 </span>
               </div>
             </motion.div>
+          )}
+
+          {apiResult && !loading && (
+            <>
+              <BudgetHealth flags={apiResult.health} />
+              <WhySplit rationale={apiResult.rationale} />
+            </>
           )}
 
           {/* Error state */}

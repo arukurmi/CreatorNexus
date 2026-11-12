@@ -10,7 +10,7 @@ export function influencerCost(i: Influencer): number {
 interface Options { strategy: AllocationStrategy; count?: number }
 
 // Greedy: best score-per-rupee first, within a budget, optionally capped to N.
-function greedyPick(
+export function greedyPick(
   creators: Influencer[], budget: number, score: (i: Influencer) => number, cap?: number,
 ): Influencer[] {
   const ranked = [...creators]

@@ -55,46 +55,35 @@ export default function DashboardPage() {
   const [applied, setApplied] = useState<Filters>(DEFAULT_FILTERS)
 
   const [apiResult, setApiResult] = useState<ApiResult | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchAllocation = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const supabase = getSupabase()
-      const sessionData = supabase ? await supabase.auth.getSession() : null
-      const token = sessionData?.data.session?.access_token ?? ''
+  const fetchAllocation = useCallback(async (signal: AbortSignal) => {
+    const token = (await getSupabase()?.auth.getSession())?.data.session?.access_token ?? ''
+    if (!token) throw new Error('Sign in to generate your allocation.')
 
-      if (!token) {
-        setError('Sign in to generate your allocation.')
-        setLoading(false)
-        return
-      }
-
-      const res = await allocateViaApi<ApiResult>(
-        {
-          budget: applied.budget,
-          niche: applied.niche,
-          strategy: applied.strategy,
-          count: applied.strategy === 'count' ? applied.count : undefined,
-          city: applied.city.trim() || undefined,
-        },
-        token,
-        { signal },
-      )
-      setApiResult(res)
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return
-      setError(err instanceof Error ? err.message : 'Unable to reach the allocation service. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    return allocateViaApi<ApiResult>(
+      {
+        budget: applied.budget,
+        niche: applied.niche,
+        strategy: applied.strategy,
+        count: applied.strategy === 'count' ? applied.count : undefined,
+        city: applied.city.trim() || undefined,
+      },
+      token,
+      { signal },
+    )
   }, [applied])
 
   useEffect(() => {
     const controller = new AbortController()
     fetchAllocation(controller.signal)
+      .then(setApiResult)
+      .catch((err) => {
+        if (err instanceof Error && err.name === 'AbortError') return
+        setError(err instanceof Error ? err.message : 'Unable to reach the allocation service. Please try again.')
+      })
+      .finally(() => setLoading(false))
     return () => controller.abort()
   }, [fetchAllocation])
 
@@ -106,9 +95,15 @@ export default function DashboardPage() {
     (strategy === 'count' && count !== applied.count) ||
     city !== applied.city
 
+  const requestAllocation = useCallback((filters: Filters) => {
+    setLoading(true)
+    setError(null)
+    setApplied(filters)
+  }, [])
+
   const applyFilters = useCallback(() => {
-    setApplied({ budget, niche, strategy, count, city })
-  }, [budget, niche, strategy, count, city])
+    requestAllocation({ budget, niche, strategy, count, city })
+  }, [requestAllocation, budget, niche, strategy, count, city])
 
   // Adapt API result to BucketResult for BucketGrid
   const bucketResult: BucketResult = apiResult
@@ -238,7 +233,7 @@ export default function DashboardPage() {
               <p className="font-semibold">Could not load allocation</p>
               <p className="mt-1 text-red-600/80">{error}</p>
               <button
-                onClick={() => fetchAllocation()}
+                onClick={() => requestAllocation({ ...applied })}
                 className="mt-3 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-200"
               >
                 Retry

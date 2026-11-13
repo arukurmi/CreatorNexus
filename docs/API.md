@@ -32,7 +32,7 @@ How to get a token:
    or read it from the Supabase auth cookie / your `AuthProvider`.
 3. In Postman, set the collection variable **`token`** to that value. All requests inherit `Bearer {{token}}`.
 
-Auth outcomes: missing/invalid/expired token → **401**; accessing another user's brand/campaign → **403**; not found → **404**; bad input → **400**.
+Auth outcomes: missing/invalid/expired token → **401**; another user's brand/campaign, a missing record or a malformed id → **404** (the API never reveals whether someone else's record exists); bad input → **400**.
 
 ## Collection variables
 
@@ -49,14 +49,15 @@ Auth outcomes: missing/invalid/expired token → **401**; accessing another user
 |---|---|---|---|
 | GET | `/api/health` | — | Liveness → `{ status: "ok" }` |
 | POST | `/api/auth/session` | ✅ | Validate token → `{ user }` |
-| GET | `/api/influencers?niche=` | ✅ | Priced creators for a niche |
+| GET | `/api/influencers?niche=&city=` | ✅ | Priced creators for a niche, optionally in one city |
 | POST | `/api/allocate` | ✅ | Run budget allocation (4 strategies) |
 | GET | `/api/brands` | ✅ | List my brands |
 | POST | `/api/brands` | ✅ | Create a brand |
 | DELETE | `/api/brands/:id` | ✅ | Delete a brand I own |
 | GET | `/api/campaigns` | ✅ | List my saved campaigns |
-| POST | `/api/campaigns` | ✅ | Save a campaign (allocation recomputed server-side) |
+| POST | `/api/campaigns` | ✅ | Save a campaign (allocation recomputed server-side, optional `city`; `brand_id` must be your own brand) |
 | GET | `/api/campaigns/:id` | ✅ | Fetch one campaign I own |
+| POST | `/api/ai/strategy` | ✅ | AI Strategist advisory for a 10–4000 character `brief` |
 
 **Niches (14):** pets, fashion, beauty, food, fitness, travel, tech, gaming, parenting, finance, home, sustainability, education, comedy.
 **Strategies (4):** `reach`, `engagement` (uses budget × 1.10), `value`, `count` (needs `count`).
@@ -80,6 +81,20 @@ Request:
 }
 ```
 For `strategy: "engagement"`, `effective_budget = round(budget × 1.10)` and `budget_buffer_applied = true`.
+
+## Limits
+
+| What | Limit | Over the limit |
+|---|---|---|
+| JSON request body | 32 KB | **413** |
+| `budget` | ₹1 crore (10,000,000) | **400** |
+| `count` | 200 | **400** |
+| `city` | 64 characters | **400** |
+| Brand `name` | 100 characters | **400** |
+| Requests per client IP | 60 per minute | **429** |
+| `POST /api/ai/strategy` per user | 10 per hour | **429** |
+
+The AI limit fails closed: if Upstash is not configured or unreachable, `POST /api/ai/strategy` returns **503** rather than calling the AI. Unexpected server errors return **500** with `{ "error": "Internal Server Error" }`; the detail goes to the server log only.
 
 ## Notes for contributors
 

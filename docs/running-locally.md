@@ -142,7 +142,7 @@ cd backend && npm test
 cd frontend && npm test
 ```
 
-Both test suites use **Vitest**. No real Supabase/Upstash/RapidAPI connection is needed — tests inject stubs via exported seams (`__setVerifier`, `setRepos`).
+Both test suites use **Vitest 5**, which needs Node 22.12 or newer. No real Supabase/Upstash/RapidAPI connection is needed — tests inject stubs via exported seams (`__setVerifier`, `setRepos`).
 
 ---
 

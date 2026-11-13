@@ -1,9 +1,12 @@
 import type { Request, Response, NextFunction } from 'express'
+import { STATUS_CODES } from 'node:http'
 
 export class HttpError extends Error { constructor(public status: number, msg: string) { super(msg) } }
 export function httpError(status: number, message: string): HttpError { return new HttpError(status, message) }
 
+/** Only messages we wrote ourselves (HttpError) reach the client; library errors get the bare status text. */
 export function errorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
-  const status = typeof err?.status === 'number' ? err.status : 500
-  res.status(status).json({ error: status === 500 ? 'Internal Server Error' : err.message })
+  const status = Number.isInteger(err?.status) && err.status >= 400 && err.status < 600 ? err.status : 500
+  const message = err instanceof HttpError && status !== 500 ? err.message : STATUS_CODES[status]
+  res.status(status).json({ error: message ?? 'Internal Server Error' })
 }

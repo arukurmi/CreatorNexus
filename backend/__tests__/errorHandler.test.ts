@@ -44,4 +44,27 @@ describe('errorHandler', () => {
     expect(res.status).toBe(401)
     expect(res.body).toEqual({ error: 'unauthorized' })
   })
+
+  it('returns the bare status text instead of a library error message', async () => {
+    const parseError = Object.assign(new Error('Unexpected token } in JSON at position 7'), { status: 400 })
+    const res = await request(appThrowing(parseError)).get('/boom')
+    expect(res.status).toBe(400)
+    expect(res.body).toEqual({ error: 'Bad Request' })
+  })
+
+  it('answers malformed JSON bodies with a fixed message', async () => {
+    const app = express()
+    app.use(express.json())
+    app.post('/echo', (req, res) => res.json(req.body))
+    app.use(errorHandler)
+    const res = await request(app).post('/echo').set('Content-Type', 'application/json').send('{"a":}')
+    expect(res.status).toBe(400)
+    expect(res.body).toEqual({ error: 'Bad Request' })
+  })
+
+  it('treats a status outside 400-599 as 500', async () => {
+    const res = await request(appThrowing(Object.assign(new Error('odd'), { status: 302 }))).get('/boom')
+    expect(res.status).toBe(500)
+    expect(res.body).toEqual({ error: 'Internal Server Error' })
+  })
 })

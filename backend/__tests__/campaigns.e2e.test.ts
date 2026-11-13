@@ -81,4 +81,13 @@ describe('campaign history', () => {
     expect((await A(request(createApp()).post('/api/campaigns').send({ ...body, brand_id: crypto.randomUUID() }))).status).toBe(404)
     expect((await A(request(createApp()).get('/api/campaigns'))).body).toEqual([])
   })
+  it('computes the saved allocation from creators in the requested city only', async () => {
+    const saved = await A(request(createApp()).post('/api/campaigns').send({ ...body, niche: 'beauty', city: 'Mumbai' }))
+    expect(saved.status).toBe(201)
+    expect(saved.body.result.selected.length).toBeGreaterThan(0)
+    expect(saved.body.result.selected.every((c: { city?: string }) => c.city === 'Mumbai')).toBe(true)
+  })
+  it('400 when the campaign city is longer than 64 characters', async () => {
+    expect((await A(request(createApp()).post('/api/campaigns').send({ ...body, city: 'x'.repeat(65) }))).status).toBe(400)
+  })
 })

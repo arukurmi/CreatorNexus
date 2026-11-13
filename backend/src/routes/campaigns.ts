@@ -4,7 +4,7 @@ import { requireAuth, type AuthedRequest } from '../middleware/supabaseAuth.js'
 import { httpError } from '../middleware/errorHandler.js'
 import { NICHES } from '../types/index.js'
 import { getRepos } from './_repos.js'
-import { budgetSchema, creatorCountSchema, isUuid } from './_schemas.js'
+import { budgetSchema, creatorCountSchema, citySchema, isUuid } from './_schemas.js'
 import { getPricedCreators } from '../services/influencerService.js'
 import { allocate } from '../services/allocationService.js'
 import type { AllocationStrategy } from '../types/index.js'
@@ -16,6 +16,7 @@ const schema = z.object({
   budget: budgetSchema,
   strategy: z.enum(['reach', 'engagement', 'value', 'count']),
   count: creatorCountSchema.nullable(),
+  city: citySchema.optional(),
 })
 
 campaignsRouter.get('/campaigns', requireAuth, async (req: AuthedRequest, res, next) => {
@@ -29,7 +30,7 @@ campaignsRouter.post('/campaigns', requireAuth, async (req: AuthedRequest, res, 
       const brand = await getRepos().brands.getById(p.data.brand_id)
       if (!brand || brand.owner_id !== req.user!.id) return next(httpError(404, 'Brand not found'))
     }
-    const creators = await getPricedCreators(p.data.niche as any)
+    const creators = await getPricedCreators(p.data.niche as any, { city: p.data.city })
     const result = allocate(creators, p.data.budget, {
       strategy: p.data.strategy as AllocationStrategy,
       count: p.data.count ?? undefined,

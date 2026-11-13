@@ -59,8 +59,8 @@ function Strategist() {
       setResult(await getAiStrategy(brief, token))
     } catch (e) {
       const status = (e as { status?: number })?.status
-      if (status === 503) setError('The AI Strategist isn\'t configured yet (missing Gemini API key).')
-      else if (status === 429) setError('The AI is rate-limited or out of free-tier Gemini quota. Please try again in a minute.')
+      if (status === 503) setError('The AI Strategist is unavailable right now. Please try again later.')
+      else if (status === 429) setError('You\'ve reached the AI request limit (10 per hour) or the AI is out of quota. Please try again later.')
       else if (status === 502) setError('The AI couldn\'t generate a strategy — the model request failed. Please try again.')
       else setError('Couldn\'t reach the AI Strategist. Please try again.')
     } finally {

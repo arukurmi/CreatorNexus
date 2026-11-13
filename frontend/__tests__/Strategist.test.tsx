@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 let search = ''
 vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams(search) }))
@@ -8,6 +8,11 @@ vi.mock('@/components/AuthGate', () => ({
 }))
 vi.mock('@/components/Header', () => ({ default: () => <div /> }))
 vi.mock('@/components/Footer', () => ({ default: () => <div /> }))
+vi.mock('@/lib/supabase/client', () => ({
+  getSupabase: () => ({ auth: { getSession: async () => ({ data: { session: { access_token: 'tok' } } }) } }),
+}))
+const getAiStrategy = vi.fn()
+vi.mock('@/lib/aiApi', () => ({ getAiStrategy: (...args: unknown[]) => getAiStrategy(...args) }))
 
 import StrategistPage from '@/app/strategist/page'
 
@@ -35,5 +40,13 @@ describe('AI Strategist page', () => {
     expect(screen.getAllByText('Quote range')).toHaveLength(6)
     expect(fetchSpy).not.toHaveBeenCalled()
     fetchSpy.mockRestore()
+  })
+
+  it('explains the hourly AI limit when the backend answers 429', async () => {
+    getAiStrategy.mockRejectedValueOnce(Object.assign(new Error('ai strategy failed: 429'), { status: 429 }))
+    render(<StrategistPage />)
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Launch a protein bar for gym-goers' } })
+    fireEvent.click(screen.getByRole('button', { name: /get ai recommendations/i }))
+    expect(await screen.findByText(/AI request limit \(10 per hour\)/)).toBeInTheDocument()
   })
 })

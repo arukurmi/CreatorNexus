@@ -18,4 +18,19 @@ describe('rateLimit middleware', () => {
     const res = await request(app).get('/api/x')
     expect(res.status).toBe(429)
   })
+
+  it('keys on the client address added by the one trusted proxy, ignoring spoofed hops', async () => {
+    vi.resetModules()
+    const keys: string[] = []
+    vi.doMock('../src/services/redis', () => ({ getRedis: () => ({}) }))
+    vi.doMock('@upstash/ratelimit', () => ({
+      Ratelimit: class {
+        static slidingWindow() { return {} }
+        limit(id: string) { keys.push(id); return Promise.resolve({ success: true, limit: 60, remaining: 59 }) }
+      },
+    }))
+    const { createApp } = await import('../src/app')
+    await request(createApp()).get('/api/health').set('X-Forwarded-For', '198.51.100.1, 203.0.113.7')
+    expect(keys).toEqual(['203.0.113.7'])
+  })
 })

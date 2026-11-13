@@ -40,8 +40,8 @@ Open `.env` and fill in the values you want. The defaults are designed so you ca
 | `SUPABASE_URL` | JWT verification + DB | auth disabled (open) |
 | `SUPABASE_SERVICE_ROLE_KEY` | brands/campaigns DB writes | DB writes fail gracefully |
 | `SUPABASE_JWT_SECRET` | local JWT verification | falls back to `auth.getUser` |
-| `UPSTASH_REDIS_REST_URL` | rate limiting + cache | rate limiting skipped |
-| `UPSTASH_REDIS_REST_TOKEN` | rate limiting + cache | rate limiting skipped |
+| `UPSTASH_REDIS_REST_URL` | rate limiting + cache; required for the AI Strategist | IP rate limiting skipped; `POST /api/ai/strategy` returns 503 |
+| `UPSTASH_REDIS_REST_TOKEN` | rate limiting + cache; required for the AI Strategist | IP rate limiting skipped; `POST /api/ai/strategy` returns 503 |
 | `RAPIDAPI_KEY` | real Instagram data | deterministic generated fallback |
 | `RAPIDAPI_HOST` | real Instagram data | deterministic generated fallback |
 | `PRICING_MODEL` | pricing strategy | `cpm` |
@@ -161,5 +161,7 @@ Sign in via the frontend (`/login`) to obtain a session. The frontend attaches t
 
 The **AI Strategist** product (`/strategist`) needs a **Gemini** key. Set
 `GEMINI_API_KEY` in `backend/.env` (free at https://aistudio.google.com). Without it,
-`POST /api/ai/strategy` returns **503** and the UI shows a friendly "not configured"
+`POST /api/ai/strategy` returns **503** and the UI shows a friendly "unavailable"
 message. Default model is `gemini-2.0-flash` (override with `GEMINI_MODEL`).
+It also needs the Upstash variables: each user gets 10 AI requests per hour, and the
+route returns **503** instead of calling Gemini when that limit cannot be checked.

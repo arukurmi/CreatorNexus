@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import express from 'express'
 import request from 'supertest'
 import { errorHandler, httpError, HttpError } from '../src/middleware/errorHandler'
@@ -66,5 +66,25 @@ describe('errorHandler', () => {
     const res = await request(appThrowing(Object.assign(new Error('odd'), { status: 302 }))).get('/boom')
     expect(res.status).toBe(500)
     expect(res.body).toEqual({ error: 'Internal Server Error' })
+  })
+
+  describe('logging', () => {
+    afterEach(() => { vi.restoreAllMocks() })
+
+    it('logs 500 errors with method and path but keeps the stack out of the response', async () => {
+      const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const res = await request(appThrowing(new Error('db exploded'))).get('/boom')
+      expect(log).toHaveBeenCalledOnce()
+      expect(log.mock.calls[0][0]).toBe('[GET /boom] 500')
+      expect(log.mock.calls[0][1]).toContain('db exploded')
+      expect(JSON.stringify(res.body)).not.toMatch(/db exploded|at /)
+    })
+
+    it('does not log deliberate 4xx and 503 responses', async () => {
+      const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+      await request(appThrowing(httpError(404, 'nope'))).get('/boom')
+      await request(appThrowing(httpError(503, 'not configured'))).get('/boom')
+      expect(log).not.toHaveBeenCalled()
+    })
   })
 })

@@ -31,7 +31,7 @@ Set these under the service's **Environment** tab. Mark secrets as secret.
 |---|---|---|
 | `CORS_ORIGIN` | Your deployed **frontend** URL, e.g. `https://creator-nexus.vercel.app` (NOT localhost, NOT `*`) | n/a — it's a URL |
 | `SUPABASE_URL` | **Same** as local: `https://<project>.supabase.co` | No — same Supabase project |
-| `SUPABASE_SERVICE_ROLE_KEY` | The **real service-role** secret key | Use the real one (local currently uses the anon key as a stand-in) |
+| `SUPABASE_SERVICE_ROLE_KEY` | The **real service-role** secret key | Use the real one; with row-level security on (M1), the anon key cannot read or write brands and campaigns |
 | `UPSTASH_REDIS_REST_URL` | Same as local (or a separate prod Upstash DB) | No — reuse for testing |
 | `UPSTASH_REDIS_REST_TOKEN` | Same as local | No — reuse for testing |
 | `RAPIDAPI_KEY` | Your subscribed RapidAPI key | No — one key per RapidAPI account, works anywhere |
@@ -64,7 +64,7 @@ swapping the Supabase anon stand-in for the real service-role key if you want hi
 1. **Deploy the backend** on Render → note its URL, e.g. `https://creator-nexus-api.onrender.com`.
 2. **On the frontend (Vercel)** set `NEXT_PUBLIC_API_BASE` = the Render backend URL, and deploy → note the Vercel URL.
 3. **Back on Render** set `CORS_ORIGIN` = the Vercel frontend URL and **redeploy** the backend.
-4. Apply `docs/db-schema.sql` in Supabase (once) so brands/campaigns persist.
+4. Apply `docs/db-schema.sql` in Supabase (once) so brands/campaigns persist. An existing project also needs each file in `docs/migrations/` (see `running-locally.md`).
 
 ## Verify
 

@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/supabaseAuth.js'
 import { httpError } from '../middleware/errorHandler.js'
+import { aiUserRateLimit } from '../middleware/rateLimit.js'
 import { getStrategy, type StrategyClient } from '../services/ai/strategyService.js'
 import { GeminiClient } from '../services/ai/geminiClient.js'
 import { env } from '../config/env.js'
@@ -20,7 +21,7 @@ function resolveClient(): StrategyClient | null {
   return new GeminiClient({ key: env.geminiApiKey, model: env.geminiModel, baseUrl: env.geminiBaseUrl })
 }
 
-aiStrategyRouter.post('/ai/strategy', requireAuth, async (req, res, next) => {
+aiStrategyRouter.post('/ai/strategy', requireAuth, aiUserRateLimit, async (req, res, next) => {
   const parsed = schema.safeParse(req.body)
   if (!parsed.success) return next(httpError(400, 'Brief must be 10–4000 characters'))
   const client = resolveClient()

@@ -3,10 +3,11 @@ import request from 'supertest'
 import { createApp } from '../src/app.js'
 import { __setVerifier } from '../src/middleware/supabaseAuth.js'
 import { __setStrategyClient, __resetStrategyClient } from '../src/routes/aiStrategy.js'
+import { __setAiLimiter, __resetAiLimiter } from '../src/middleware/rateLimit.js'
 import type { AiAdvisory } from '../src/services/ai/types.js'
 
 beforeAll(() => __setVerifier(async () => ({ id: 'u1', email: 'a@b.c' })))
-afterEach(() => __resetStrategyClient())
+afterEach(() => { __resetStrategyClient(); __resetAiLimiter() })
 const auth = (r: request.Test) => r.set('Authorization', 'Bearer good')
 
 const advisory: AiAdvisory = {
@@ -15,7 +16,10 @@ const advisory: AiAdvisory = {
 }
 
 describe('POST /api/ai/strategy', () => {
-  beforeEach(() => __setStrategyClient({ generate: async () => advisory }))
+  beforeEach(() => {
+    __setStrategyClient({ generate: async () => advisory })
+    __setAiLimiter({ limit: async () => ({ success: true }) })
+  })
 
   it('401 without a token', async () => {
     const res = await request(createApp()).post('/api/ai/strategy').send({ brief: 'a valid brief here' })
@@ -44,5 +48,22 @@ describe('POST /api/ai/strategy', () => {
     __setStrategyClient({ generate: async () => { const e = new Error('quota') as Error & { status?: number }; e.status = 429; throw e } })
     const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'a valid campaign brief here' })
     expect(res.status).toBe(429)
+  })
+
+  it('429 without calling the AI once the user is over the hourly limit', async () => {
+    let called = false
+    __setStrategyClient({ generate: async () => { called = true; return advisory } })
+    __setAiLimiter({ limit: async () => ({ success: false }) })
+    const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'a valid campaign brief here' })
+    expect(res.status).toBe(429)
+    expect(called).toBe(false)
+  })
+  it('503 without calling the AI when the limiter store is unavailable', async () => {
+    let called = false
+    __setStrategyClient({ generate: async () => { called = true; return advisory } })
+    __setAiLimiter(null)
+    const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'a valid campaign brief here' })
+    expect(res.status).toBe(503)
+    expect(called).toBe(false)
   })
 })

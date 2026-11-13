@@ -6,7 +6,7 @@ import { NICHES } from '../types/index.js'
 import { getRepos } from './_repos.js'
 
 export const brandsRouter = Router()
-const schema = z.object({ name: z.string().min(1), niche: z.enum(NICHES as [string, ...string[]]) })
+const schema = z.object({ name: z.string().min(1).max(100), niche: z.enum(NICHES as [string, ...string[]]) })
 
 brandsRouter.get('/brands', requireAuth, async (req: AuthedRequest, res, next) => {
   try { res.json(await getRepos().brands.listByOwner(req.user!.id)) } catch (e) { next(e) }

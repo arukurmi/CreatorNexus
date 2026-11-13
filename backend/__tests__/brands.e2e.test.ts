@@ -41,6 +41,9 @@ describe('brands CRUD', () => {
   it('400 on invalid body', async () => {
     expect((await A(request(createApp()).post('/api/brands').send({ name: '' }))).status).toBe(400)
   })
+  it('400 when the brand name is longer than 100 characters', async () => {
+    expect((await A(request(createApp()).post('/api/brands').send({ name: 'x'.repeat(101), niche: 'tech' }))).status).toBe(400)
+  })
   it('404 deleting nonexistent brand', async () => {
     user = { id: 'u1', email: 'a@b.c' }
     expect((await A(request(createApp()).delete('/api/brands/nonexistent-id'))).status).toBe(404)

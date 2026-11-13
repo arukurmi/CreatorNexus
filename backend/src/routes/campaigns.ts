@@ -11,7 +11,7 @@ import type { AllocationStrategy } from '../types/index.js'
 
 export const campaignsRouter = Router()
 const schema = z.object({
-  brand_id: z.string().uuid().nullable(),
+  brand_id: z.guid().nullable(),
   niche: z.enum(NICHES as [string, ...string[]]),
   budget: budgetSchema,
   strategy: z.enum(['reach', 'engagement', 'value', 'count']),

@@ -30,6 +30,10 @@ describe('POST /api/ai/strategy', () => {
     expect(res.body.advisory.recommended_niche).toBe('beauty')
     expect(Array.isArray(res.body.creators)).toBe(true)
   })
+  it('accepts a maximum-length brief of multi-byte characters under the body cap', async () => {
+    const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'अ'.repeat(4000) })
+    expect(res.status).toBe(200)
+  })
   it('503 when the AI client is not configured', async () => {
     __setStrategyClient(null) // simulate missing key
     const res = await auth(request(createApp()).post('/api/ai/strategy')).send({ brief: 'a valid campaign brief' })

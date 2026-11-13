@@ -34,4 +34,9 @@ describe('POST /api/allocate', () => {
     expect(res.body.rationale.length).toBeGreaterThan(0)
     for (const f of res.body.health) expect(f).toEqual({ severity: expect.any(String), code: expect.any(String), message: expect.any(String) })
   })
+  it('413 with a fixed message when the body exceeds 32 KB', async () => {
+    const res = await post({ budget: 50000, niche: 'tech', strategy: 'reach', pad: 'x'.repeat(40_000) })
+    expect(res.status).toBe(413)
+    expect(res.body).toEqual({ error: 'Payload Too Large' })
+  })
 })

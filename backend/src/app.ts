@@ -16,7 +16,7 @@ export function createApp(): Express {
   const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:3000'
   if (corsOrigin === '*') throw new Error('CORS_ORIGIN cannot be "*" with credentials enabled')
   app.use(cors({ origin: corsOrigin, credentials: true }))
-  app.use(express.json())
+  app.use(express.json({ limit: '32kb' }))
   app.use('/api', rateLimit)
   app.use('/api', healthRouter)
   app.use('/api', authRouter)

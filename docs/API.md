@@ -96,6 +96,8 @@ For `strategy: "engagement"`, `effective_budget = round(budget × 1.10)` and `bu
 
 The AI limit fails closed: if Upstash is not configured or unreachable, `POST /api/ai/strategy` returns **503** rather than calling the AI. Unexpected server errors return **500** with `{ "error": "Internal Server Error" }`; the detail goes to the server log only.
 
+Every response carries Helmet's security headers, including `Strict-Transport-Security`, `X-Content-Type-Options: nosniff` and `X-Frame-Options: SAMEORIGIN`.
+
 ## Notes for contributors
 
 - With **no `RAPIDAPI_KEY`**, `/api/influencers` and `/api/allocate` work out of the box using a deterministic generated dataset — no external account needed to explore the API.

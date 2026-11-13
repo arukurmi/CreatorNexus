@@ -58,4 +58,10 @@ describe('campaign history', () => {
     expect(res.status).toBe(404)
     expect(res.body).toEqual({ error: 'Campaign not found' })
   })
+  it('400 when budget or count exceed their caps or brand_id is not a UUID', async () => {
+    const post = (b: object) => A(request(createApp()).post('/api/campaigns').send({ ...body, ...b }))
+    expect((await post({ budget: 10_000_001 })).status).toBe(400)
+    expect((await post({ strategy: 'count', count: 201 })).status).toBe(400)
+    expect((await post({ brand_id: 'not-a-uuid' })).status).toBe(400)
+  })
 })

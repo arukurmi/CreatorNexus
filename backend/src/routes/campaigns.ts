@@ -4,18 +4,18 @@ import { requireAuth, type AuthedRequest } from '../middleware/supabaseAuth.js'
 import { httpError } from '../middleware/errorHandler.js'
 import { NICHES } from '../types/index.js'
 import { getRepos } from './_repos.js'
-import { isUuid } from './_schemas.js'
+import { budgetSchema, creatorCountSchema, isUuid } from './_schemas.js'
 import { getPricedCreators } from '../services/influencerService.js'
 import { allocate } from '../services/allocationService.js'
 import type { AllocationStrategy } from '../types/index.js'
 
 export const campaignsRouter = Router()
 const schema = z.object({
-  brand_id: z.string().nullable(),
+  brand_id: z.string().uuid().nullable(),
   niche: z.enum(NICHES as [string, ...string[]]),
-  budget: z.number().positive(),
+  budget: budgetSchema,
   strategy: z.enum(['reach', 'engagement', 'value', 'count']),
-  count: z.number().int().positive().nullable(),
+  count: creatorCountSchema.nullable(),
 })
 
 campaignsRouter.get('/campaigns', requireAuth, async (req: AuthedRequest, res, next) => {

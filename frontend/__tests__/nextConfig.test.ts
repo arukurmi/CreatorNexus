@@ -14,4 +14,8 @@ describe('next.config security headers', () => {
     expect(headers['Content-Security-Policy']).toBe("frame-ancestors 'none'")
     expect(headers['Permissions-Policy']).toContain('camera=()')
   })
+
+  it('does not advertise Next.js in an X-Powered-By header', () => {
+    expect(nextConfig.poweredByHeader).toBe(false)
+  })
 })

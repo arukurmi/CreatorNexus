@@ -101,5 +101,5 @@ Every response carries Helmet's security headers, including `Strict-Transport-Se
 ## Notes for contributors
 
 - With **no `RAPIDAPI_KEY`**, `/api/influencers` and `/api/allocate` work out of the box using a deterministic generated dataset — no external account needed to explore the API.
-- **Brands/campaigns** need the Postgres tables ([`db-schema.sql`](./db-schema.sql)) applied in Supabase and a **service-role** key in `backend/.env`.
+- **Brands/campaigns** need the Postgres tables ([`db-schema.sql`](./db-schema.sql)) applied in Supabase and a **service-role** key in `backend/.env`. Row-level security limits the anon key to the signed-in user's own rows.
 - Full local setup: [`running-locally.md`](./running-locally.md).

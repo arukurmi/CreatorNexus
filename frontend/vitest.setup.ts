@@ -27,3 +27,6 @@ class ResizeObserverStub {
   disconnect() {}
 }
 ;(globalThis as { ResizeObserver?: unknown }).ResizeObserver = ResizeObserverStub
+
+/** happy-dom's Animation.cancel() leaves an unhandled AbortError; without WAAPI framer-motion animates in JS instead. */
+delete (Element.prototype as { animate?: unknown }).animate

@@ -32,14 +32,14 @@ afterEach(() => { __resetRepos(); __resetVerifier() })
 const A = (r: request.Test) => r.set('Authorization', 'Bearer good')
 
 describe('brands CRUD', () => {
-  it('creates, lists, deletes; enforces ownership', async () => {
+  it('creates, lists, deletes; another user gets 404, not 403', async () => {
     user = { id: 'u1', email: 'a@b.c' }
     const created = await A(request(createApp()).post('/api/brands').send({ name: 'Acme', niche: 'tech' }))
     expect(created.status).toBe(201)
     const id = created.body.id
     expect((await A(request(createApp()).get('/api/brands'))).body.length).toBe(1)
     user = { id: 'u2', email: 'x@y.z' }
-    expect((await A(request(createApp()).delete(`/api/brands/${id}`))).status).toBe(403)
+    expect((await A(request(createApp()).delete(`/api/brands/${id}`))).status).toBe(404)
     user = { id: 'u1', email: 'a@b.c' }
     expect((await A(request(createApp()).delete(`/api/brands/${id}`))).status).toBe(204)
   })

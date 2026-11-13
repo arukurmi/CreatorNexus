@@ -4,6 +4,7 @@ import { requireAuth, type AuthedRequest } from '../middleware/supabaseAuth.js'
 import { httpError } from '../middleware/errorHandler.js'
 import { NICHES } from '../types/index.js'
 import { getRepos } from './_repos.js'
+import { isUuid } from './_schemas.js'
 
 export const brandsRouter = Router()
 const schema = z.object({ name: z.string().min(1).max(100), niche: z.enum(NICHES as [string, ...string[]]) })
@@ -17,6 +18,7 @@ brandsRouter.post('/brands', requireAuth, async (req: AuthedRequest, res, next) 
   try { res.status(201).json(await getRepos().brands.create({ owner_id: req.user!.id, ...p.data })) } catch (e) { next(e) }
 })
 brandsRouter.delete('/brands/:id', requireAuth, async (req: AuthedRequest, res, next) => {
+  if (!isUuid(req.params.id)) return next(httpError(404, 'Brand not found'))
   try {
     const found = await getRepos().brands.getById(req.params.id)
     if (!found) return next(httpError(404, 'Brand not found'))

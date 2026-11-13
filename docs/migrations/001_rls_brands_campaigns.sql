@@ -1,4 +1,4 @@
-/* M1: owner-only row-level security. The backend's service-role key bypasses RLS; the public anon key does not. */
+/* Owner-only row-level security. The backend's service-role key bypasses RLS; the public anon key does not. */
 alter table brands enable row level security;
 
 drop policy if exists brands_select_own on brands;

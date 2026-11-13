@@ -4,6 +4,7 @@ import { requireAuth, type AuthedRequest } from '../middleware/supabaseAuth.js'
 import { httpError } from '../middleware/errorHandler.js'
 import { NICHES } from '../types/index.js'
 import { getRepos } from './_repos.js'
+import { isUuid } from './_schemas.js'
 import { getPricedCreators } from '../services/influencerService.js'
 import { allocate } from '../services/allocationService.js'
 import type { AllocationStrategy } from '../types/index.js'
@@ -43,6 +44,7 @@ campaignsRouter.post('/campaigns', requireAuth, async (req: AuthedRequest, res, 
   } catch (e) { next(e) }
 })
 campaignsRouter.get('/campaigns/:id', requireAuth, async (req: AuthedRequest, res, next) => {
+  if (!isUuid(req.params.id)) return next(httpError(404, 'Campaign not found'))
   try {
     const c = await getRepos().campaigns.getById(req.params.id)
     if (!c) return next(httpError(404, 'Campaign not found'))

@@ -6,12 +6,16 @@ import { setRepos, __resetRepos } from '../src/routes/_repos'
 import { makeBrandsRepo } from '../src/db/brandsRepo'
 import { makeCampaignsRepo } from '../src/db/campaignsRepo'
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+/** Mimics Postgres, which throws rather than returning nothing when a uuid column is queried with a non-UUID. */
+function assertUuid(id: string) { if (!UUID.test(id)) throw new Error(`invalid input syntax for type uuid: "${id}"`) }
+
 function fakeDb() {
   const rows: any[] = []
   return {
     insert: async (_t: string, r: any) => { rows.push(r); return r },
     selectByOwner: async (_t: string, o: string) => rows.filter((r) => r.owner_id === o),
-    selectById: async (_t: string, id: string) => rows.find((r) => r.id === id) ?? null,
+    selectById: async (_t: string, id: string) => { assertUuid(id); return rows.find((r) => r.id === id) ?? null },
     deleteByIdOwner: async () => false,
   }
 }
@@ -47,6 +51,11 @@ describe('campaign history', () => {
     const saved = await A(request(createApp()).post('/api/campaigns').send(body))
     user = { id: 'u2', email: 'x@y.z' }
     expect((await A(request(createApp()).get(`/api/campaigns/${saved.body.id}`))).status).toBe(403)
-    expect((await A(request(createApp()).get('/api/campaigns/missing'))).status).toBe(404)
+    expect((await A(request(createApp()).get(`/api/campaigns/${crypto.randomUUID()}`))).status).toBe(404)
+  })
+  it('404 rather than a database error for a malformed campaign id', async () => {
+    const res = await A(request(createApp()).get('/api/campaigns/missing'))
+    expect(res.status).toBe(404)
+    expect(res.body).toEqual({ error: 'Campaign not found' })
   })
 })

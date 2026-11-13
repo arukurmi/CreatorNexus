@@ -64,4 +64,21 @@ describe('campaign history', () => {
     expect((await post({ strategy: 'count', count: 201 })).status).toBe(400)
     expect((await post({ brand_id: 'not-a-uuid' })).status).toBe(400)
   })
+  it('saves a campaign against the caller\'s own brand', async () => {
+    user = { id: 'u1', email: 'a@b.c' }
+    const brand = await A(request(createApp()).post('/api/brands').send({ name: 'Acme', niche: 'tech' }))
+    const saved = await A(request(createApp()).post('/api/campaigns').send({ ...body, brand_id: brand.body.id }))
+    expect(saved.status).toBe(201)
+    expect(saved.body.brand_id).toBe(brand.body.id)
+  })
+  it('404 when brand_id belongs to another user or does not exist', async () => {
+    user = { id: 'u1', email: 'a@b.c' }
+    const brand = await A(request(createApp()).post('/api/brands').send({ name: 'Acme', niche: 'tech' }))
+    user = { id: 'u2', email: 'x@y.z' }
+    const foreign = await A(request(createApp()).post('/api/campaigns').send({ ...body, brand_id: brand.body.id }))
+    expect(foreign.status).toBe(404)
+    expect(foreign.body).toEqual({ error: 'Brand not found' })
+    expect((await A(request(createApp()).post('/api/campaigns').send({ ...body, brand_id: crypto.randomUUID() }))).status).toBe(404)
+    expect((await A(request(createApp()).get('/api/campaigns'))).body).toEqual([])
+  })
 })

@@ -25,6 +25,10 @@ campaignsRouter.post('/campaigns', requireAuth, async (req: AuthedRequest, res, 
   const p = schema.safeParse(req.body)
   if (!p.success) return next(httpError(400, 'Invalid campaign'))
   try {
+    if (p.data.brand_id) {
+      const brand = await getRepos().brands.getById(p.data.brand_id)
+      if (!brand || brand.owner_id !== req.user!.id) return next(httpError(404, 'Brand not found'))
+    }
     const creators = await getPricedCreators(p.data.niche as any)
     const result = allocate(creators, p.data.budget, {
       strategy: p.data.strategy as AllocationStrategy,

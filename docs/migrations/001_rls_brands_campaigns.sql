@@ -9,3 +9,14 @@ drop policy if exists brands_update_own on brands;
 create policy brands_update_own on brands for update to authenticated using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
 drop policy if exists brands_delete_own on brands;
 create policy brands_delete_own on brands for delete to authenticated using (owner_id = (select auth.uid()));
+
+alter table campaigns enable row level security;
+
+drop policy if exists campaigns_select_own on campaigns;
+create policy campaigns_select_own on campaigns for select to authenticated using (owner_id = (select auth.uid()));
+drop policy if exists campaigns_insert_own on campaigns;
+create policy campaigns_insert_own on campaigns for insert to authenticated with check (owner_id = (select auth.uid()));
+drop policy if exists campaigns_update_own on campaigns;
+create policy campaigns_update_own on campaigns for update to authenticated using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+drop policy if exists campaigns_delete_own on campaigns;
+create policy campaigns_delete_own on campaigns for delete to authenticated using (owner_id = (select auth.uid()));

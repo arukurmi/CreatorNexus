@@ -138,7 +138,7 @@
             "method": "DELETE",
             "header": [],
             "url": { "raw": "{{base_url}}/api/brands/{{brand_id}}", "host": ["{{base_url}}"], "path": ["api", "brands", "{{brand_id}}"] },
-            "description": "Deletes a brand you own (204). 404 if missing, 403 if it belongs to another user."
+            "description": "Deletes a brand you own (204). 404 if missing, malformed or owned by another user."
           }
         }
       ]
@@ -171,7 +171,7 @@
             "method": "GET",
             "header": [],
             "url": { "raw": "{{base_url}}/api/campaigns/{{campaign_id}}", "host": ["{{base_url}}"], "path": ["api", "campaigns", "{{campaign_id}}"] },
-            "description": "Fetches one campaign you own (200). 404 if missing, 403 if it belongs to another user. The stored allocation result round-trips intact."
+            "description": "Fetches one campaign you own (200). 404 if missing, malformed or owned by another user. The stored allocation result round-trips intact."
           }
         }
       ]

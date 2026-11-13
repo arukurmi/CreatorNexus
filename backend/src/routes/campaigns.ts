@@ -47,8 +47,7 @@ campaignsRouter.get('/campaigns/:id', requireAuth, async (req: AuthedRequest, re
   if (!isUuid(req.params.id)) return next(httpError(404, 'Campaign not found'))
   try {
     const c = await getRepos().campaigns.getById(req.params.id)
-    if (!c) return next(httpError(404, 'Campaign not found'))
-    if (c.owner_id !== req.user!.id) return next(httpError(403, 'Forbidden'))
+    if (!c || c.owner_id !== req.user!.id) return next(httpError(404, 'Campaign not found'))
     res.json(c)
   } catch (e) { next(e) }
 })

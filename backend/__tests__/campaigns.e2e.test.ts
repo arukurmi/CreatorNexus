@@ -46,11 +46,11 @@ describe('campaign history', () => {
     expect(got.status).toBe(200)
     expect(got.body.result.total_projected_spend).toBe(saved.body.projected_spend)
   })
-  it('403 fetching another user\'s campaign, 404 when missing', async () => {
+  it('404 fetching another user\'s campaign, same as when missing', async () => {
     user = { id: 'u1', email: 'a@b.c' }
     const saved = await A(request(createApp()).post('/api/campaigns').send(body))
     user = { id: 'u2', email: 'x@y.z' }
-    expect((await A(request(createApp()).get(`/api/campaigns/${saved.body.id}`))).status).toBe(403)
+    expect((await A(request(createApp()).get(`/api/campaigns/${saved.body.id}`))).status).toBe(404)
     expect((await A(request(createApp()).get(`/api/campaigns/${crypto.randomUUID()}`))).status).toBe(404)
   })
   it('404 rather than a database error for a malformed campaign id', async () => {

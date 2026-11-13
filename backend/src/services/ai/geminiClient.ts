@@ -19,10 +19,10 @@ export class GeminiClient {
   }
 
   async generate(prompt: string, schema: object): Promise<unknown> {
-    const url = `${this.baseUrl}/v1beta/models/${this.model}:generateContent?key=${this.key}`
+    const url = `${this.baseUrl}/v1beta/models/${this.model}:generateContent`
     const res = await this.fetchFn(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.key },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { responseMimeType: 'application/json', responseSchema: schema },

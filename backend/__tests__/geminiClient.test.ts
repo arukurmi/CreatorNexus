@@ -7,13 +7,14 @@ const apiBody = (obj: unknown) => ({
 })
 
 describe('GeminiClient', () => {
-  it('posts to the model endpoint with the key and returns parsed JSON', async () => {
+  it('posts to the model endpoint with the key in a header, not the URL, and returns parsed JSON', async () => {
     const fetchFn = vi.fn().mockResolvedValue(apiBody({ ok: 1 }) as Response)
     const c = new GeminiClient({ key: 'K', model: 'gemini-2.0-flash', baseUrl: 'https://g', fetchFn })
     const out = await c.generate('hello', { type: 'OBJECT' })
     expect(out).toEqual({ ok: 1 })
     const [url, init] = fetchFn.mock.calls[0]
-    expect(url).toBe('https://g/v1beta/models/gemini-2.0-flash:generateContent?key=K')
+    expect(url).toBe('https://g/v1beta/models/gemini-2.0-flash:generateContent')
+    expect((init as RequestInit).headers).toMatchObject({ 'x-goog-api-key': 'K' })
     expect((init as RequestInit).method).toBe('POST')
     const sent = JSON.parse((init as RequestInit).body as string)
     expect(sent.generationConfig.responseMimeType).toBe('application/json')

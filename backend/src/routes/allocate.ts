@@ -7,14 +7,15 @@ import { getPricedCreators } from '../services/influencerService.js'
 import { allocate } from '../services/allocationService.js'
 import { budgetHealth } from '../services/allocation/diagnostics.js'
 import { allocationRationale } from '../services/allocation/rationale.js'
+import { budgetSchema, creatorCountSchema, citySchema } from './_schemas.js'
 
 export const allocateRouter = Router()
 const schema = z.object({
-  budget: z.number().positive(),
+  budget: budgetSchema,
   niche: z.enum(NICHES as [string, ...string[]]),
   strategy: z.enum(['reach', 'engagement', 'value', 'count']),
-  count: z.number().int().positive().optional(),
-  city: z.string().trim().min(1).optional(), // optional India city filter
+  count: creatorCountSchema.optional(),
+  city: citySchema.optional(), // optional India city filter
 }).refine((v) => v.strategy !== 'count' || v.count != null, { message: 'count required for count strategy' })
 
 allocateRouter.post('/allocate', requireAuth, async (req, res, next) => {

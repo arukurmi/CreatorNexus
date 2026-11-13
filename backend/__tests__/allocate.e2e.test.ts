@@ -11,6 +11,15 @@ describe('POST /api/allocate', () => {
     expect((await post({ budget: -5, niche: 'tech', strategy: 'reach' })).status).toBe(400)
     expect((await post({ budget: 'x', niche: 'tech', strategy: 'reach' })).status).toBe(400)
   })
+  it('400 when budget, count or city exceed their caps', async () => {
+    expect((await post({ budget: 10_000_001, niche: 'tech', strategy: 'reach' })).status).toBe(400)
+    expect((await post({ budget: 50000, niche: 'tech', strategy: 'count', count: 201 })).status).toBe(400)
+    expect((await post({ budget: 50000, niche: 'tech', strategy: 'reach', city: 'x'.repeat(65) })).status).toBe(400)
+  })
+  it('accepts budget, count and city exactly at their caps', async () => {
+    expect((await post({ budget: 10_000_000, niche: 'tech', strategy: 'count', count: 200 })).status).toBe(200)
+    expect((await post({ budget: 50000, niche: 'tech', strategy: 'reach', city: 'x'.repeat(64) })).status).toBe(200)
+  })
   it('400 when count strategy missing count', async () => {
     expect((await post({ budget: 50000, niche: 'tech', strategy: 'count' })).status).toBe(400)
   })

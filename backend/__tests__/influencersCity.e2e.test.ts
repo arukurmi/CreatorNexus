@@ -15,6 +15,16 @@ describe('GET /api/influencers — city filter (e2e)', () => {
     expect(res.body.creators.every((c: { city?: string }) => c.city === 'Mumbai')).toBe(true)
   })
 
+  it('400 when the city is longer than 64 characters', async () => {
+    const res = await auth(request(createApp()).get(`/api/influencers?niche=beauty&city=${'x'.repeat(65)}`))
+    expect(res.status).toBe(400)
+  })
+
+  it('trims the city before filtering', async () => {
+    const res = await auth(request(createApp()).get('/api/influencers?niche=beauty&city=%20Mumbai%20'))
+    expect(res.body.city).toBe('Mumbai')
+  })
+
   it('city is null when omitted (all locations)', async () => {
     const res = await auth(request(createApp()).get('/api/influencers?niche=beauty'))
     expect(res.status).toBe(200)

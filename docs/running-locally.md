@@ -121,6 +121,23 @@ The brands and campaigns history features require two tables in Supabase. To cre
 1. Open your [Supabase project](https://supabase.com/dashboard) → **SQL Editor**.
 2. Paste the contents of [`docs/db-schema.sql`](./db-schema.sql) and run it.
 
+`db-schema.sql` already turns on row-level security, so each signed-in user can only reach their own brands and campaigns through the public anon key. The backend must use the real **service-role** key in `SUPABASE_SERVICE_ROLE_KEY`; the anon key no longer works as a stand-in.
+
+### Migrations
+
+Projects created before v1.1.0 need each file in [`docs/migrations/`](./migrations) run once, in number order:
+
+| File | What it does |
+|---|---|
+| `001_rls_brands_campaigns.sql` (M1) | Turns on owner-only row-level security for `brands` and `campaigns` |
+
+To apply one:
+
+1. Make sure the backend (local `.env` and Render) has the real service-role key in `SUPABASE_SERVICE_ROLE_KEY`. With the anon key, saving and listing brands and campaigns will fail once RLS is on.
+2. Supabase → **SQL Editor** → **New query** → paste the file → **Run**. Each file is safe to run twice.
+3. Check Supabase → **Table Editor** → `brands` and `campaigns` both show **RLS enabled**, and **Authentication → Policies** lists four policies on each.
+4. Sign in on the app and save a campaign to confirm history still works.
+
 ---
 
 ## Environment Variable Reference

@@ -1,5 +1,6 @@
 import express, { type Express } from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import { healthRouter } from './routes/health.js'
 import { authRouter } from './routes/auth.js'
 import { influencersRouter } from './routes/influencers.js'
@@ -13,6 +14,7 @@ import { errorHandler } from './middleware/errorHandler.js'
 export function createApp(): Express {
   const app = express()
   app.set('trust proxy', 1)
+  app.use(helmet())
   const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:3000'
   if (corsOrigin === '*') throw new Error('CORS_ORIGIN cannot be "*" with credentials enabled')
   app.use(cors({ origin: corsOrigin, credentials: true }))

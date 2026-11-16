@@ -134,7 +134,7 @@ export default function BudgetControls({
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="flex w-full items-center justify-between rounded-xl border border-border bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40"
+            className="flex w-full items-center justify-between rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40"
           >
             <span>
               {selected.emoji} {selected.label}
@@ -192,7 +192,7 @@ export default function BudgetControls({
           <select
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
-            className="w-full cursor-pointer appearance-none rounded-xl border border-border bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary focus:outline-none"
+            className="w-full cursor-pointer appearance-none rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary focus:outline-none"
           >
             <option value="">🌐 All locations</option>
             {CITIES.map((c) => (

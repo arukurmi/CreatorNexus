@@ -21,7 +21,7 @@ function ProductNav() {
             key={it.href}
             href={it.href}
             className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-              active ? 'bg-white text-primary shadow-sm' : 'text-foreground/60 hover:text-foreground'
+              active ? 'bg-white text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {it.label}
@@ -55,7 +55,7 @@ export default function Header() {
             <span className="text-base font-bold tracking-tight text-foreground">
               Creator Nexus
             </span>
-            <span className="text-[10px] font-medium uppercase tracking-widest text-primary/70">
+            <span className="text-[10px] font-medium uppercase tracking-widest text-primary">
               Right creators for your budget
             </span>
           </div>
@@ -73,7 +73,7 @@ export default function Header() {
         >
           {configured && user ? (
             <>
-              <span className="hidden max-w-[40vw] truncate text-xs font-medium text-foreground/60 sm:inline-block sm:align-middle md:max-w-[220px]">
+              <span className="hidden max-w-[40vw] truncate text-xs font-medium text-muted-foreground sm:inline-block sm:align-middle md:max-w-[220px]">
                 {user.email}
               </span>
               <button

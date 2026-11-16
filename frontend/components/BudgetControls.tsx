@@ -235,10 +235,10 @@ export default function BudgetControls({
           {/* Count stepper — only for the "Pick Count" strategy */}
           {strategy === 'count' && (
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-foreground/70">
+              <span id={`${id}-count-label`} className="text-xs font-semibold text-foreground/70">
                 Creators:
               </span>
-              <div className="flex items-center gap-1 rounded-xl border border-border bg-white/70 p-1">
+              <div role="group" aria-labelledby={`${id}-count-label`} className="flex items-center gap-1 rounded-xl border border-border bg-white/70 p-1">
                 <button
                   onClick={() => onCountChange(Math.max(1, count - 1))}
                   className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted disabled:opacity-40"

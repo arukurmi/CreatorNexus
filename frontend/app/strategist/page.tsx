@@ -81,7 +81,7 @@ function Strategist() {
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               AI <span className="bg-gradient-to-r from-primary to-primary-soft bg-clip-text text-transparent">Strategist</span>
             </h1>
-            <p className="mt-3 text-base text-foreground/60">Paste your campaign brief — get a recommended niche, tier mix, audience, content ideas, and a creator bucket.</p>
+            <p className="mt-3 text-base text-muted-foreground">Paste your campaign brief — get a recommended niche, tier mix, audience, content ideas, and a creator bucket.</p>
           </motion.div>
 
           <div className="shadow-soft mb-8 rounded-2xl bg-white/60 p-6 ring-1 ring-border/60 backdrop-blur-sm">
@@ -95,7 +95,7 @@ function Strategist() {
               className="w-full resize-y rounded-xl border border-border bg-white/70 p-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-foreground/40">{brief.length}/4000</span>
+              <span className="text-xs text-muted-foreground">{brief.length}/4000</span>
               <button
                 onClick={submit}
                 disabled={loading}

@@ -24,7 +24,7 @@ export default function AdvisoryCard({ advisory }: { advisory: Advisory }) {
           {label(recommended_niche)}
         </span>
         {secondary_niches.map((n) => (
-          <span key={n} className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground/60">
+          <span key={n} className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
             {label(n)}
           </span>
         ))}
@@ -32,13 +32,13 @@ export default function AdvisoryCard({ advisory }: { advisory: Advisory }) {
 
       {/* Tier mix bar */}
       <div className="mb-5">
-        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-foreground/50">Recommended tier mix</p>
+        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recommended tier mix</p>
         <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
           <div className="bg-secondary" style={{ width: `${tier_mix.nano}%` }} title={`Nano ${tier_mix.nano}%`} />
           <div className="bg-primary/70" style={{ width: `${tier_mix.micro}%` }} title={`Micro ${tier_mix.micro}%`} />
           <div className="bg-primary" style={{ width: `${tier_mix.macro}%` }} title={`Macro ${tier_mix.macro}%`} />
         </div>
-        <div className="mt-1 flex gap-3 text-xs text-foreground/55">
+        <div className="mt-1 flex gap-3 text-xs text-muted-foreground">
           <span>Nano {tier_mix.nano}%</span><span>Micro {tier_mix.micro}%</span><span>Macro {tier_mix.macro}%</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function AdvisoryCard({ advisory }: { advisory: Advisory }) {
 
       {content_ideas.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-foreground/50">
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <Lightbulb className="h-4 w-4 text-primary" /> Content ideas
           </p>
           <div className="flex flex-wrap gap-2">

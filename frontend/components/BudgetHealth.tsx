@@ -11,7 +11,7 @@ export default function BudgetHealth({ flags }: { flags?: HealthFlag[] }) {
   if (!flags?.length) return null
   return (
     <section className="mb-6">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground/50">Budget health</p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Budget health</p>
       <ul className="space-y-2">
         {flags.map((flag, i) => (
           <li

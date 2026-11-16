@@ -36,6 +36,11 @@ body {
   ::placeholder {
     color: var(--color-muted-foreground);
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
 }
 
 /* Custom scrollbar */

@@ -50,4 +50,10 @@ describe('BudgetControls', () => {
     fireEvent.click(screen.getByRole('button', { name: /max engagement/i }))
     expect(props.onStrategyChange).toHaveBeenCalledWith('engagement')
   })
+
+  it('labels the budget slider and city select', () => {
+    setup()
+    expect(screen.getByLabelText(/total budget/i)).toHaveAttribute('type', 'range')
+    expect(screen.getByLabelText(/city/i).tagName).toBe('SELECT')
+  })
 })

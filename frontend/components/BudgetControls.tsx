@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   IndianRupee,
@@ -74,6 +74,7 @@ export default function BudgetControls({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const selected = NICHES.find((n) => n.value === niche) ?? NICHES[0]
   const activeStrategy = STRATEGIES.find((s) => s.value === strategy)
+  const id = useId()
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -101,7 +102,7 @@ export default function BudgetControls({
         {/* Budget slider */}
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm font-semibold text-foreground/80">
+            <label htmlFor={`${id}-budget`} className="text-sm font-semibold text-foreground/80">
               Total Budget
             </label>
             <div className="flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-1">
@@ -112,6 +113,7 @@ export default function BudgetControls({
             </div>
           </div>
           <input
+            id={`${id}-budget`}
             type="range"
             min={5000}
             max={200000}
@@ -184,12 +186,13 @@ export default function BudgetControls({
 
       {/* City filter (optional) */}
       <div className="mt-6">
-        <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
-          <MapPin className="h-4 w-4 text-primary" />
+        <label htmlFor={`${id}-city`} className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
+          <MapPin aria-hidden className="h-4 w-4 text-primary" />
           City <span className="font-normal text-muted-foreground">(optional — all locations if blank)</span>
         </label>
         <div className="relative">
           <select
+            id={`${id}-city`}
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
             className="w-full cursor-pointer appearance-none rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary"

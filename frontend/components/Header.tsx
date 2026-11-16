@@ -13,13 +13,14 @@ function ProductNav() {
     { href: '/strategist', label: 'AI Strategist ✨' },
   ]
   return (
-    <nav className="hidden items-center gap-1 rounded-full bg-muted p-1 sm:flex">
+    <nav aria-label="Products" className="hidden items-center gap-1 rounded-full bg-muted p-1 sm:flex">
       {items.map((it) => {
         const active = pathname === it.href
         return (
           <Link
             key={it.href}
             href={it.href}
+            aria-current={active ? 'page' : undefined}
             className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
               active ? 'bg-white text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}

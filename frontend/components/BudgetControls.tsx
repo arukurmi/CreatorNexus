@@ -208,13 +208,14 @@ export default function BudgetControls({
 
       {/* Allocation strategy */}
       <div className="mt-6 border-t border-border/60 pt-5">
-        <label className="mb-2 block text-sm font-semibold text-foreground/80">
+        <label id={`${id}-strategy-label`} className="mb-2 block text-sm font-semibold text-foreground/80">
           Allocation Strategy
         </label>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div role="group" aria-labelledby={`${id}-strategy-label`} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {STRATEGIES.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
+              aria-pressed={strategy === value}
               onClick={() => onStrategyChange(value)}
               className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 strategy === value

@@ -56,4 +56,10 @@ describe('BudgetControls', () => {
     expect(screen.getByLabelText(/total budget/i)).toHaveAttribute('type', 'range')
     expect(screen.getByLabelText(/city/i).tagName).toBe('SELECT')
   })
+
+  it('marks the active strategy as pressed', () => {
+    setup({ strategy: 'value' })
+    expect(screen.getByRole('button', { name: /best value/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /max reach/i })).toHaveAttribute('aria-pressed', 'false')
+  })
 })

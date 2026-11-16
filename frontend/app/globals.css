@@ -59,9 +59,9 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F3F0EA;
+  background: var(--color-muted);
 }
 ::-webkit-scrollbar-thumb {
-  background: #C5E1A5;
+  background: var(--color-secondary);
   border-radius: 3px;
 }

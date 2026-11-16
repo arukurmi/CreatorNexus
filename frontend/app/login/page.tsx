@@ -121,12 +121,13 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-foreground/80">
+            <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-foreground/80">
               Email
             </label>
             <div className="relative">
               <Mail aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
+                id="email"
                 type="email"
                 required
                 value={email}
@@ -138,12 +139,13 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-foreground/80">
+            <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-foreground/80">
               Password
             </label>
             <div className="relative">
               <Lock aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
+                id="password"
                 type="password"
                 required
                 value={password}

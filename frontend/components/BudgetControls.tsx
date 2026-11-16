@@ -120,7 +120,7 @@ export default function BudgetControls({
             onChange={(e) => onBudgetChange(Number(e.target.value))}
             className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
           />
-          <div className="mt-1.5 flex justify-between text-xs text-foreground/40">
+          <div className="mt-1.5 flex justify-between text-xs text-muted-foreground">
             <span>₹5,000</span>
             <span>₹2,00,000</span>
           </div>
@@ -140,7 +140,7 @@ export default function BudgetControls({
               {selected.emoji} {selected.label}
             </span>
             <ChevronDown
-              className={`h-4 w-4 text-foreground/40 transition-transform ${
+              className={`h-4 w-4 text-muted-foreground transition-transform ${
                 open ? 'rotate-180' : ''
               }`}
             />
@@ -186,7 +186,7 @@ export default function BudgetControls({
       <div className="mt-6">
         <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
           <MapPin className="h-4 w-4 text-primary" />
-          City <span className="font-normal text-foreground/40">(optional — all locations if blank)</span>
+          City <span className="font-normal text-muted-foreground">(optional — all locations if blank)</span>
         </label>
         <div className="relative">
           <select
@@ -199,7 +199,7 @@ export default function BudgetControls({
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
+          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         </div>
       </div>
 
@@ -226,7 +226,7 @@ export default function BudgetControls({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-foreground/50">{activeStrategy?.hint}</p>
+          <p className="text-xs text-muted-foreground">{activeStrategy?.hint}</p>
 
           {/* Count stepper — only for the "Pick Count" strategy */}
           {strategy === 'count' && (
@@ -237,7 +237,7 @@ export default function BudgetControls({
               <div className="flex items-center gap-1 rounded-xl border border-border bg-white/70 p-1">
                 <button
                   onClick={() => onCountChange(Math.max(1, count - 1))}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/60 transition hover:bg-muted disabled:opacity-40"
+                  className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted disabled:opacity-40"
                   disabled={count <= 1}
                   aria-label="Decrease creator count"
                 >
@@ -248,7 +248,7 @@ export default function BudgetControls({
                 </span>
                 <button
                   onClick={() => onCountChange(Math.min(maxCount, count + 1))}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/60 transition hover:bg-muted disabled:opacity-40"
+                  className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted disabled:opacity-40"
                   disabled={count >= maxCount}
                   aria-label="Increase creator count"
                 >
@@ -262,7 +262,7 @@ export default function BudgetControls({
 
       {/* Apply filters — fetches buckets for the current budget / niche / city / strategy */}
       <div className="mt-6 flex flex-col items-center gap-2 border-t border-border/60 pt-5 sm:flex-row sm:justify-between">
-        <p className="text-xs text-foreground/50">
+        <p className="text-xs text-muted-foreground">
           {dirty
             ? 'Filters changed — click Apply to refresh your buckets.'
             : 'Buckets reflect the applied filters.'}

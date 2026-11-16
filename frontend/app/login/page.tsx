@@ -81,7 +81,7 @@ export default function LoginPage() {
           </span>
           <div className="leading-none">
             <p className="text-lg font-bold text-foreground">Creator Nexus</p>
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-muted-foreground">
               Allocate budgets to the right creators
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
               className={`rounded-lg py-2 text-sm font-semibold transition-all ${
                 mode === m
                   ? 'bg-white text-foreground shadow-sm'
-                  : 'text-foreground/50 hover:text-foreground/80'
+                  : 'text-muted-foreground hover:text-foreground/80'
               }`}
             >
               {m === 'signin' ? 'Sign In' : 'Sign Up'}
@@ -125,7 +125,7 @@ export default function LoginPage() {
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
+              <Mail aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="email"
                 required
@@ -142,7 +142,7 @@ export default function LoginPage() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
+              <Lock aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="password"
                 required
@@ -161,7 +161,7 @@ export default function LoginPage() {
             </p>
           )}
           {notice && (
-            <p className="flex items-start gap-1.5 text-xs text-green-600">
+            <p className="flex items-start gap-1.5 text-xs text-green-700">
               <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               {notice}
             </p>

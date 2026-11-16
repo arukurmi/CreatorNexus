@@ -82,7 +82,7 @@ export default function LandingPage() {
         </motion.h1>
 
         <motion.p
-          className="mt-4 max-w-xl text-base text-foreground/60 sm:text-lg"
+          className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.1 }}
@@ -132,7 +132,7 @@ export default function LandingPage() {
             >
               <Icon className="mb-2 h-5 w-5 text-primary" />
               <p className="font-bold text-foreground">{title}</p>
-              <p className="mt-1 text-sm text-foreground/55">{body}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{body}</p>
             </motion.div>
           ))}
         </div>

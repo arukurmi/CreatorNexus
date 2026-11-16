@@ -192,7 +192,7 @@ export default function BudgetControls({
           <select
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
-            className="w-full cursor-pointer appearance-none rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary focus:outline-none"
+            className="w-full cursor-pointer appearance-none rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary"
           >
             <option value="">🌐 All locations</option>
             {CITIES.map((c) => (

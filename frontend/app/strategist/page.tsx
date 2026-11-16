@@ -92,7 +92,7 @@ function Strategist() {
               rows={6}
               maxLength={4000}
               placeholder="e.g. We're launching a vegan skincare line for Gen-Z in metro cities. Goal: awareness + trust, premium-but-affordable vibe…"
-              className="w-full resize-y rounded-xl border border-input bg-white/70 p-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full resize-y rounded-xl border border-input bg-white/70 p-4 text-sm text-foreground transition focus:border-primary"
             />
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{brief.length}/4000</span>

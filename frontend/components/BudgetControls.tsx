@@ -71,10 +71,46 @@ export default function BudgetControls({
   onApply,
 }: Props) {
   const [open, setOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const selected = NICHES.find((n) => n.value === niche) ?? NICHES[0]
+  const selectedIndex = Math.max(0, NICHES.findIndex((n) => n.value === niche))
+  const selected = NICHES[selectedIndex]
   const activeStrategy = STRATEGIES.find((s) => s.value === strategy)
   const id = useId()
+  const nicheOptionId = (i: number) => `${id}-niche-${NICHES[i].value}`
+  const activeOptionId = open ? nicheOptionId(activeIndex) : undefined
+
+  function openNiches(index = selectedIndex) {
+    setActiveIndex(index)
+    setOpen(true)
+  }
+
+  function selectNiche(index: number) {
+    onNicheChange(NICHES[index].value)
+    setOpen(false)
+  }
+
+  function onNicheKeyDown(e: React.KeyboardEvent) {
+    const last = NICHES.length - 1
+    const step = (delta: number) => (open ? Math.min(last, Math.max(0, activeIndex + delta)) : selectedIndex)
+    const target = ({ ArrowDown: step(1), ArrowUp: step(-1), Home: 0, End: last } as Record<string, number>)[e.key]
+    if (target !== undefined) {
+      e.preventDefault()
+      openNiches(target)
+    } else if (open && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      selectNiche(activeIndex)
+    } else if (open && e.key === 'Escape') {
+      e.preventDefault()
+      setOpen(false)
+    } else if (e.key === 'Tab') {
+      setOpen(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeOptionId) document.getElementById(activeOptionId)?.scrollIntoView?.({ block: 'nearest' })
+  }, [activeOptionId])
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -130,18 +166,27 @@ export default function BudgetControls({
 
         {/* Niche dropdown */}
         <div ref={dropdownRef} className="relative">
-          <label className="mb-2 block text-sm font-semibold text-foreground/80">
+          <label id={`${id}-niche-label`} className="mb-2 block text-sm font-semibold text-foreground/80">
             Content Niche
           </label>
           <button
             type="button"
-            onClick={() => setOpen((o) => !o)}
+            id={`${id}-niche-trigger`}
+            role="combobox"
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            aria-controls={`${id}-niche-listbox`}
+            aria-labelledby={`${id}-niche-label ${id}-niche-trigger`}
+            aria-activedescendant={activeOptionId}
+            onClick={() => (open ? setOpen(false) : openNiches())}
+            onKeyDown={onNicheKeyDown}
             className="flex w-full items-center justify-between rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40"
           >
             <span>
               {selected.emoji} {selected.label}
             </span>
             <ChevronDown
+              aria-hidden
               className={`h-4 w-4 text-muted-foreground transition-transform ${
                 open ? 'rotate-180' : ''
               }`}
@@ -151,31 +196,33 @@ export default function BudgetControls({
           <AnimatePresence>
             {open && (
               <motion.ul
+                id={`${id}-niche-listbox`}
+                role="listbox"
+                aria-labelledby={`${id}-niche-label`}
+                onMouseDown={(e) => e.preventDefault()}
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
                 className="shadow-card absolute z-50 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-border bg-white p-1.5"
               >
-                {NICHES.map((n) => (
-                  <li key={n.value}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onNicheChange(n.value)
-                        setOpen(false)
-                      }}
-                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
-                        n.value === niche
-                          ? 'bg-primary/10 font-semibold text-primary'
-                          : 'text-foreground/80 hover:bg-muted'
-                      }`}
-                    >
-                      <span>
-                        {n.emoji} {n.label}
-                      </span>
-                      {n.value === niche && <Check className="h-4 w-4" />}
-                    </button>
+                {NICHES.map((n, i) => (
+                  <li
+                    key={n.value}
+                    id={nicheOptionId(i)}
+                    role="option"
+                    aria-selected={n.value === niche}
+                    onClick={() => selectNiche(i)}
+                    className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
+                      n.value === niche
+                        ? 'bg-primary/10 font-semibold text-primary'
+                        : `text-foreground/80 hover:bg-muted ${i === activeIndex ? 'bg-muted' : ''}`
+                    }`}
+                  >
+                    <span>
+                      {n.emoji} {n.label}
+                    </span>
+                    {n.value === niche && <Check aria-hidden className="h-4 w-4" />}
                   </li>
                 ))}
               </motion.ul>

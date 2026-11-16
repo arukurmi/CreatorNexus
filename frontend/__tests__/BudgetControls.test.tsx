@@ -40,7 +40,7 @@ describe('BudgetControls', () => {
 
   it('shows the optional city filter with an All-locations default', () => {
     const props = setup({ dirty: false })
-    const select = screen.getByRole('combobox')
+    const select = screen.getByRole('combobox', { name: /city/i })
     fireEvent.change(select, { target: { value: 'Mumbai' } })
     expect(props.onCityChange).toHaveBeenCalledWith('Mumbai')
   })
@@ -61,5 +61,53 @@ describe('BudgetControls', () => {
     setup({ strategy: 'value' })
     expect(screen.getByRole('button', { name: /best value/i })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: /max reach/i })).toHaveAttribute('aria-pressed', 'false')
+  })
+})
+
+describe('BudgetControls niche combobox', () => {
+  const niche = () => screen.getByRole('combobox', { name: /content niche/i })
+
+  it('opens on ArrowDown with the current niche active', () => {
+    setup()
+    expect(niche()).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    expect(niche()).toHaveAttribute('aria-expanded', 'true')
+    const active = document.getElementById(niche().getAttribute('aria-activedescendant')!)
+    expect(active).toHaveTextContent(/pet parents/i)
+    expect(active).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('moves the active option with ArrowDown and End', () => {
+    setup()
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    expect(document.getElementById(niche().getAttribute('aria-activedescendant')!)).toHaveTextContent(/fashion/i)
+    fireEvent.keyDown(niche(), { key: 'End' })
+    expect(document.getElementById(niche().getAttribute('aria-activedescendant')!)).toHaveTextContent(/comedy/i)
+  })
+
+  it('selects the active option on Enter and closes', () => {
+    const props = setup()
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    fireEvent.keyDown(niche(), { key: 'Enter' })
+    expect(props.onNicheChange).toHaveBeenCalledWith('fashion')
+    expect(niche()).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('closes on Escape without changing the niche', () => {
+    const props = setup()
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    fireEvent.keyDown(niche(), { key: 'ArrowDown' })
+    fireEvent.keyDown(niche(), { key: 'Escape' })
+    expect(niche()).toHaveAttribute('aria-expanded', 'false')
+    expect(props.onNicheChange).not.toHaveBeenCalled()
+  })
+
+  it('selects an option on click', () => {
+    const props = setup()
+    fireEvent.click(niche())
+    fireEvent.click(screen.getByRole('option', { name: /travel/i }))
+    expect(props.onNicheChange).toHaveBeenCalledWith('travel')
   })
 })

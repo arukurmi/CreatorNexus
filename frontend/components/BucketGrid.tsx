@@ -95,7 +95,7 @@ export default function BucketGrid({ allInfluencers, result }: Props) {
       {/* Leftover budget note */}
       {result.leftover_budget > 0 && result.selected_influencers.length > 0 && (
         <motion.p
-          className="mt-8 text-center text-sm text-foreground/50"
+          className="mt-8 text-center text-sm text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -132,11 +132,11 @@ function TierBucket({
       >
         <span className="text-lg">{meta.emoji}</span>
         <h3 className="text-base font-bold text-foreground">{meta.label} bucket</h3>
-        <span className="text-xs font-medium text-foreground/50">{meta.range}</span>
-        <span className="ml-auto rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-semibold text-foreground/60 ring-1 ring-border/50">
+        <span className="text-xs font-medium text-muted-foreground">{meta.range}</span>
+        <span className="ml-auto rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-semibold text-muted-foreground ring-1 ring-border/50">
           {selectedInTier} in bucket · {list.length} available
         </span>
-        <p className="w-full text-xs text-foreground/45">{meta.blurb}</p>
+        <p className="w-full text-xs text-muted-foreground">{meta.blurb}</p>
       </div>
 
       {/* Cards (paginated, 5 per row / 10 per page) */}
@@ -176,14 +176,14 @@ function TierBucket({
             >
               <ChevronDown className="h-4 w-4" />
               Show {Math.min(PAGE_SIZE, remaining)} more
-              <span className="text-foreground/40">({remaining} left)</span>
+              <span className="text-muted-foreground">({remaining} left)</span>
             </button>
           )}
           {visible > PAGE_SIZE && (
             <button
               type="button"
               onClick={() => setVisible(PAGE_SIZE)}
-              className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-foreground/50 transition hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
             >
               <ChevronUp className="h-4 w-4" />
               Show less
@@ -208,7 +208,7 @@ function SummaryItem({
     <div className="flex flex-col items-center gap-1 text-center">
       <div className="mb-1">{icon}</div>
       <p className="text-lg font-bold text-foreground">{value}</p>
-      <p className="text-xs text-foreground/50">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   )
 }

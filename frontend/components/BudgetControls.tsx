@@ -76,8 +76,8 @@ export default function BudgetControls({
   const selectedIndex = Math.max(0, NICHES.findIndex((n) => n.value === niche))
   const selected = NICHES[selectedIndex]
   const activeStrategy = STRATEGIES.find((s) => s.value === strategy)
-  const id = useId()
-  const nicheOptionId = (i: number) => `${id}-niche-${NICHES[i].value}`
+  const idPrefix = useId()
+  const nicheOptionId = (i: number) => `${idPrefix}-niche-${NICHES[i].value}`
   const activeOptionId = open ? nicheOptionId(activeIndex) : undefined
 
   function openNiches(index = selectedIndex) {
@@ -91,12 +91,12 @@ export default function BudgetControls({
   }
 
   function onNicheKeyDown(e: React.KeyboardEvent) {
-    const last = NICHES.length - 1
-    const step = (delta: number) => (open ? Math.min(last, Math.max(0, activeIndex + delta)) : selectedIndex)
-    const target = ({ ArrowDown: step(1), ArrowUp: step(-1), Home: 0, End: last } as Record<string, number>)[e.key]
-    if (target !== undefined) {
+    const lastIndex = NICHES.length - 1
+    const step = (delta: number) => (open ? Math.min(lastIndex, Math.max(0, activeIndex + delta)) : selectedIndex)
+    const targetIndex = ({ ArrowDown: step(1), ArrowUp: step(-1), Home: 0, End: lastIndex } as Record<string, number>)[e.key]
+    if (targetIndex !== undefined) {
       e.preventDefault()
-      openNiches(target)
+      openNiches(targetIndex)
     } else if (open && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault()
       selectNiche(activeIndex)
@@ -138,7 +138,7 @@ export default function BudgetControls({
         {/* Budget slider */}
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label htmlFor={`${id}-budget`} className="text-sm font-semibold text-foreground/80">
+            <label htmlFor={`${idPrefix}-budget`} className="text-sm font-semibold text-foreground/80">
               Total Budget
             </label>
             <div className="flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-1">
@@ -149,7 +149,7 @@ export default function BudgetControls({
             </div>
           </div>
           <input
-            id={`${id}-budget`}
+            id={`${idPrefix}-budget`}
             type="range"
             min={5000}
             max={200000}
@@ -166,17 +166,17 @@ export default function BudgetControls({
 
         {/* Niche dropdown */}
         <div ref={dropdownRef} className="relative">
-          <label id={`${id}-niche-label`} className="mb-2 block text-sm font-semibold text-foreground/80">
+          <label id={`${idPrefix}-niche-label`} className="mb-2 block text-sm font-semibold text-foreground/80">
             Content Niche
           </label>
           <button
             type="button"
-            id={`${id}-niche-trigger`}
+            id={`${idPrefix}-niche-trigger`}
             role="combobox"
             aria-haspopup="listbox"
             aria-expanded={open}
-            aria-controls={`${id}-niche-listbox`}
-            aria-labelledby={`${id}-niche-label ${id}-niche-trigger`}
+            aria-controls={`${idPrefix}-niche-listbox`}
+            aria-labelledby={`${idPrefix}-niche-label ${idPrefix}-niche-trigger`}
             aria-activedescendant={activeOptionId}
             onClick={() => (open ? setOpen(false) : openNiches())}
             onKeyDown={onNicheKeyDown}
@@ -196,9 +196,9 @@ export default function BudgetControls({
           <AnimatePresence>
             {open && (
               <motion.ul
-                id={`${id}-niche-listbox`}
+                id={`${idPrefix}-niche-listbox`}
                 role="listbox"
-                aria-labelledby={`${id}-niche-label`}
+                aria-labelledby={`${idPrefix}-niche-label`}
                 onMouseDown={(e) => e.preventDefault()}
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -233,13 +233,13 @@ export default function BudgetControls({
 
       {/* City filter (optional) */}
       <div className="mt-6">
-        <label htmlFor={`${id}-city`} className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
+        <label htmlFor={`${idPrefix}-city`} className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
           <MapPin aria-hidden className="h-4 w-4 text-primary" />
           City <span className="font-normal text-muted-foreground">(optional — all locations if blank)</span>
         </label>
         <div className="relative">
           <select
-            id={`${id}-city`}
+            id={`${idPrefix}-city`}
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
             className="w-full cursor-pointer appearance-none rounded-xl border border-input bg-white/70 px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 focus:border-primary"
@@ -255,10 +255,10 @@ export default function BudgetControls({
 
       {/* Allocation strategy */}
       <div className="mt-6 border-t border-border/60 pt-5">
-        <label id={`${id}-strategy-label`} className="mb-2 block text-sm font-semibold text-foreground/80">
+        <label id={`${idPrefix}-strategy-label`} className="mb-2 block text-sm font-semibold text-foreground/80">
           Allocation Strategy
         </label>
-        <div role="group" aria-labelledby={`${id}-strategy-label`} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div role="group" aria-labelledby={`${idPrefix}-strategy-label`} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {STRATEGIES.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
@@ -282,10 +282,10 @@ export default function BudgetControls({
           {/* Count stepper — only for the "Pick Count" strategy */}
           {strategy === 'count' && (
             <div className="flex items-center gap-2">
-              <span id={`${id}-count-label`} className="text-xs font-semibold text-foreground/70">
+              <span id={`${idPrefix}-count-label`} className="text-xs font-semibold text-foreground/70">
                 Creators:
               </span>
-              <div role="group" aria-labelledby={`${id}-count-label`} className="flex items-center gap-1 rounded-xl border border-border bg-white/70 p-1">
+              <div role="group" aria-labelledby={`${idPrefix}-count-label`} className="flex items-center gap-1 rounded-xl border border-border bg-white/70 p-1">
                 <button
                   onClick={() => onCountChange(Math.max(1, count - 1))}
                   className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted disabled:opacity-40"

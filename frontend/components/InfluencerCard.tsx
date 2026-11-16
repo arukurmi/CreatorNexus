@@ -60,14 +60,14 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
             rel="noopener noreferrer"
             aria-label={`Open ${handle} on Instagram`}
             title="Open verified profile on Instagram"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-foreground/40 transition hover:bg-muted hover:text-primary"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-primary"
           >
             <ExternalLink className="h-4 w-4" />
           </a>
         ) : (
           <span
             title="Sample data — a realistic placeholder, not a live Instagram account. Enable a live Instagram API for real, openable profiles."
-            className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-600 ring-1 ring-amber-200"
+            className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200"
           >
             <FlaskConical className="h-3 w-3" /> Sample
           </span>
@@ -82,11 +82,11 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate font-bold text-foreground">{handle}</p>
-          <p className="truncate text-xs text-foreground/50">
+          <p className="truncate text-xs text-muted-foreground">
             {(engagement_rate * 100).toFixed(1)}% engagement
           </p>
           {city && (
-            <p className="flex items-center gap-0.5 text-xs text-foreground/50">
+            <p className="flex items-center gap-0.5 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">{city}</span>
             </p>
@@ -109,13 +109,13 @@ export default function InfluencerCard({ influencer, isSelected }: Props) {
         <StatBadge
           icon={<Heart className="h-3 w-3" />}
           label={`${(engagement_rate * 100).toFixed(1)}%`}
-          color="bg-rose-50 text-rose-500"
+          color="bg-rose-50 text-rose-700"
         />
       </div>
 
       {/* Cost range */}
       <div className="flex items-center justify-between rounded-xl bg-muted/60 px-4 py-2.5">
-        <span className="text-xs font-medium text-foreground/50">Quote range</span>
+        <span className="text-xs font-medium text-muted-foreground">Quote range</span>
         <div className="flex items-center gap-0.5 font-bold text-primary">
           <IndianRupee className="h-3.5 w-3.5" />
           <span>

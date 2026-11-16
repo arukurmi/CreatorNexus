@@ -32,7 +32,7 @@ export default function MetricsLegend() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut', delay: 0.18 }}
     >
-      <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+      <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         <Info className="h-3.5 w-3.5" />
         What the badges mean
       </p>
@@ -48,7 +48,7 @@ export default function MetricsLegend() {
               <p className="text-sm font-semibold text-foreground">
                 {item.label}
               </p>
-              <p className="text-xs leading-snug text-foreground/55">
+              <p className="text-xs leading-snug text-muted-foreground">
                 {item.desc}
               </p>
             </div>

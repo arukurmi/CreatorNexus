@@ -12,6 +12,7 @@
   --color-secondary-foreground: #1F2937;
 
   --color-muted: #F3F0EA;
+  --color-muted-foreground: #5B6472;
   --color-border: #E8E3DA;
 
   --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
@@ -27,6 +28,12 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+}
+
+@layer base {
+  ::placeholder {
+    color: var(--color-muted-foreground);
+  }
 }
 
 /* Custom scrollbar */

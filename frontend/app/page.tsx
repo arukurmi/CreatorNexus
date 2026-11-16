@@ -75,7 +75,7 @@ export default function LandingPage() {
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
           Start connecting with the{' '}
-          <span className="bg-gradient-to-r from-primary to-[#e8956d] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary to-primary-soft bg-clip-text text-transparent">
             right influencers
           </span>{' '}
           now

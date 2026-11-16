@@ -138,7 +138,7 @@ export default function DashboardPage() {
           >
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Build your{' '}
-              <span className="bg-gradient-to-r from-primary to-[#e8956d] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary-soft bg-clip-text text-transparent">
                 Influencer Bucket
               </span>
             </h1>

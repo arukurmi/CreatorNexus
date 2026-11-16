@@ -79,7 +79,7 @@ function Strategist() {
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
           <motion.div className="mb-8 text-center" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-              AI <span className="bg-gradient-to-r from-primary to-[#e8956d] bg-clip-text text-transparent">Strategist</span>
+              AI <span className="bg-gradient-to-r from-primary to-primary-soft bg-clip-text text-transparent">Strategist</span>
             </h1>
             <p className="mt-3 text-base text-foreground/60">Paste your campaign brief — get a recommended niche, tier mix, audience, content ideas, and a creator bucket.</p>
           </motion.div>

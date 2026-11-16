@@ -142,7 +142,7 @@ export default function DashboardPage() {
                 Influencer Bucket
               </span>
             </h1>
-            <p className="mt-3 text-base text-foreground/60 sm:text-lg">
+            <p className="mt-3 text-base text-muted-foreground sm:text-lg">
               Set your budget. Pick a niche. We allocate the best creators for
               maximum reach.
             </p>
@@ -213,13 +213,13 @@ export default function DashboardPage() {
                   return (
                     <span key={tier} className="flex items-center gap-1.5">
                       <span className="capitalize font-medium text-foreground/80">{tier}</span>
-                      <span className="text-foreground/50">
+                      <span className="text-muted-foreground">
                         {stat.count} creator{stat.count !== 1 ? 's' : ''} · ₹{stat.spend.toLocaleString('en-IN')}
                       </span>
                     </span>
                   )
                 })}
-                <span className="ml-auto flex items-center gap-3 text-foreground/60">
+                <span className="ml-auto flex items-center gap-3 text-muted-foreground">
                   <span>Total spend: <strong className="text-foreground/80">₹{apiResult.total_projected_spend.toLocaleString('en-IN')}</strong></span>
                   <span>Leftover: <strong className="text-foreground/80">₹{apiResult.leftover_budget.toLocaleString('en-IN')}</strong></span>
                 </span>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1 }}
             >
               <p className="font-semibold">Could not load allocation</p>
-              <p className="mt-1 text-red-600/80">{error}</p>
+              <p className="mt-1 text-red-700">{error}</p>
               <button
                 onClick={() => requestAllocation({ ...applied })}
                 className="mt-3 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-200"
@@ -255,7 +255,7 @@ export default function DashboardPage() {
           {/* Loading skeleton */}
           {loading && (
             <motion.div
-              className="mb-6 flex items-center justify-center gap-3 rounded-xl border border-border/50 bg-white/60 py-12 text-foreground/50"
+              className="mb-6 flex items-center justify-center gap-3 rounded-xl border border-border/50 bg-white/60 py-12 text-muted-foreground"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >

@@ -23,7 +23,7 @@ describe('AI Strategist page', () => {
 
   it('renders the brief textarea and the submit button', () => {
     render(<StrategistPage />)
-    expect(screen.getByRole('textbox')).toBeInTheDocument()
+    expect(screen.getByLabelText(/campaign brief/i)).toBe(screen.getByRole('textbox'))
     expect(screen.getByRole('button', { name: /get ai recommendations/i })).toBeInTheDocument()
     expect(screen.getByTestId('auth-gate')).toBeInTheDocument()
     expect(screen.queryByText(/ai recommendation$/i)).toBeNull()

@@ -85,8 +85,9 @@ function Strategist() {
           </motion.div>
 
           <div className="shadow-soft mb-8 rounded-2xl bg-white/60 p-6 ring-1 ring-border/60 backdrop-blur-sm">
-            <label className="mb-2 block text-sm font-semibold text-foreground/80">Campaign brief</label>
+            <label htmlFor="campaign-brief" className="mb-2 block text-sm font-semibold text-foreground/80">Campaign brief</label>
             <textarea
+              id="campaign-brief"
               value={brief}
               onChange={(e) => setBrief(e.target.value)}
               rows={6}

@@ -69,8 +69,8 @@ function Strategist() {
   }
 
   const bucket: BucketResult = result
-    ? { selected_influencers: result.creators, total_projected_spend: 0, leftover_budget: 0 }
-    : { selected_influencers: [], total_projected_spend: 0, leftover_budget: 0 }
+    ? { selected_influencers: result.creators, leftover_budget: 0 }
+    : { selected_influencers: [], leftover_budget: 0 }
 
   return (
     <Gate>

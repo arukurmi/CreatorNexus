@@ -38,6 +38,7 @@ describe('AI Strategist page', () => {
     expect(screen.getByText(/protein brand/i)).toBeInTheDocument()
     expect(screen.getByText('Nano 55%')).toBeInTheDocument()
     expect(screen.getAllByText('Quote range')).toHaveLength(6)
+    expect(screen.queryByText(/projected spend/i)).toBeNull()
     expect(fetchSpy).not.toHaveBeenCalled()
     fetchSpy.mockRestore()
   })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getTier, TIER_META, TIER_ORDER } from '../lib/tier'
+import { getTier, TIER_META, TIER_ORDER, tierSpendRows } from '../lib/tier'
 import type { Tier } from '../lib/types'
 
 describe('getTier', () => {
@@ -38,5 +38,44 @@ describe('TIER_META / TIER_ORDER', () => {
     for (const followers of [500, 50_000, 500_000]) {
       expect(TIER_META[getTier(followers)]).toBeTruthy()
     }
+  })
+})
+
+describe('tierSpendRows', () => {
+  it('returns tiers in TIER_ORDER with their share of total spend', () => {
+    const rows = tierSpendRows({
+      macro: { count: 1, spend: 20_000 },
+      nano: { count: 4, spend: 12_000 },
+      micro: { count: 2, spend: 18_000 },
+    })
+    expect(rows).toEqual([
+      { tier: 'nano', count: 4, spend: 12_000, percent: 24 },
+      { tier: 'micro', count: 2, spend: 18_000, percent: 36 },
+      { tier: 'macro', count: 1, spend: 20_000, percent: 40 },
+    ])
+  })
+
+  it('keeps rounded percents summing to 100', () => {
+    const rows = tierSpendRows({
+      nano: { count: 1, spend: 1 },
+      micro: { count: 1, spend: 1 },
+      macro: { count: 1, spend: 1 },
+    })
+    expect(rows.reduce((sum, r) => sum + r.percent, 0)).toBe(100)
+  })
+
+  it('gives a zero-spend tier 0% and keeps it in the rows', () => {
+    const rows = tierSpendRows({
+      nano: { count: 3, spend: 15_000 },
+      micro: { count: 0, spend: 0 },
+      macro: { count: 1, spend: 35_000 },
+    })
+    expect(rows.map((r) => [r.tier, r.percent])).toEqual([['nano', 30], ['micro', 0], ['macro', 70]])
+  })
+
+  it('returns 0% for every tier when total spend is zero', () => {
+    const zero = { count: 0, spend: 0 }
+    const rows = tierSpendRows({ nano: zero, micro: zero, macro: zero })
+    expect(rows.map((r) => r.percent)).toEqual([0, 0, 0])
   })
 })

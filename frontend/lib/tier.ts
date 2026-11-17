@@ -50,3 +50,28 @@ export const TIER_META: Record<Tier, TierMeta> = {
 }
 
 export const TIER_ORDER: Tier[] = ['nano', 'micro', 'macro']
+
+export interface TierStat {
+  count: number
+  spend: number
+}
+
+export interface TierSpendRow extends TierStat {
+  tier: Tier
+  percent: number
+}
+
+/** Whole percents of total spend; the largest tier absorbs rounding drift so they sum to 100. */
+export function tierSpendRows(byTier: Record<Tier, TierStat>): TierSpendRow[] {
+  const total = TIER_ORDER.reduce((sum, tier) => sum + byTier[tier].spend, 0)
+  const rows = TIER_ORDER.map((tier) => ({
+    tier,
+    ...byTier[tier],
+    percent: total > 0 ? Math.round((byTier[tier].spend / total) * 100) : 0,
+  }))
+  if (total > 0) {
+    const largest = rows.reduce((a, b) => (b.spend > a.spend ? b : a))
+    largest.percent += 100 - rows.reduce((sum, row) => sum + row.percent, 0)
+  }
+  return rows
+}

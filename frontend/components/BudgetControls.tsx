@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Niche, AllocationStrategy } from '@/lib/types'
 import { NICHES } from '@/lib/niches'
+import { MIN_BUDGET, SLIDER_MAX_BUDGET } from '@/lib/budget'
 
 // Indian cities for the optional location filter (must match backend tags).
 const CITIES = [
@@ -151,16 +152,16 @@ export default function BudgetControls({
           <input
             id={`${idPrefix}-budget`}
             type="range"
-            min={5000}
-            max={200000}
+            min={MIN_BUDGET}
+            max={SLIDER_MAX_BUDGET}
             step={1000}
             value={budget}
             onChange={(e) => onBudgetChange(Number(e.target.value))}
             className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
           />
           <div className="mt-1.5 flex justify-between text-xs text-muted-foreground">
-            <span>₹5,000</span>
-            <span>₹2,00,000</span>
+            <span>₹{MIN_BUDGET.toLocaleString('en-IN')}</span>
+            <span>₹{SLIDER_MAX_BUDGET.toLocaleString('en-IN')}</span>
           </div>
         </div>
 

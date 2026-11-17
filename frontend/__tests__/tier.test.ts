@@ -30,6 +30,7 @@ describe('TIER_META / TIER_ORDER', () => {
       expect(m.blurb.length).toBeGreaterThan(0)
       expect(m.badge.length).toBeGreaterThan(0)
       expect(m.band.length).toBeGreaterThan(0)
+      expect(m.bar.length).toBeGreaterThan(0)
     }
   })
 

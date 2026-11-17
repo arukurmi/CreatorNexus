@@ -62,7 +62,7 @@ swapping the Supabase anon stand-in for the real service-role key if you want hi
 ## Deploy order (avoids the CORS chicken-and-egg)
 
 1. **Deploy the backend** on Render → note its URL, e.g. `https://creator-nexus-api.onrender.com`.
-2. **On the frontend (Vercel)** set `NEXT_PUBLIC_API_BASE` = the Render backend URL, and deploy → note the Vercel URL.
+2. **On the frontend (Vercel)** set `NEXT_PUBLIC_API_BASE` = the Render backend URL, and deploy → note the Vercel URL. Set `NEXT_PUBLIC_SITE_URL` too if you use a custom domain; otherwise social previews, the sitemap and robots.txt use the Vercel production domain.
 3. **Back on Render** set `CORS_ORIGIN` = the Vercel frontend URL and **redeploy** the backend.
 4. Apply `docs/db-schema.sql` in Supabase (once) so brands/campaigns persist. An existing project also needs each file in `docs/migrations/` (see `running-locally.md`).
 5. In Supabase → **Authentication** → **URL Configuration** → **Redirect URLs**, add `<your Vercel URL>/reset-password`, or password-reset emails link to the Site URL instead (see `running-locally.md`).

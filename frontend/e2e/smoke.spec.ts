@@ -37,3 +37,9 @@ test('robots.txt and sitemap.xml are served', async ({ request }) => {
     expect((await request.get(path)).status(), path).toBe(200)
   }
 })
+
+test('dashboard shows the how-it-works explainer on a first visit', async ({ page }) => {
+  await page.goto('/dashboard')
+  await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Run my first allocation' })).toBeVisible()
+})

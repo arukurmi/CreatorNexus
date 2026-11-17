@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import sitemap from '../app/sitemap'
+import { SITE_URL } from '../lib/site'
 
 async function loadSiteUrl(env: Record<string, string>) {
   vi.stubEnv('NEXT_PUBLIC_SITE_URL', '')
@@ -28,5 +30,15 @@ describe('SITE_URL', () => {
 
   it('falls back to localhost:3000 when neither is set', async () => {
     expect(await loadSiteUrl({})).toBe('http://localhost:3000')
+  })
+})
+
+describe('sitemap', () => {
+  it('lists only the public routes, including the strategist preview', () => {
+    expect(sitemap().map((entry) => entry.url)).toEqual([
+      `${SITE_URL}/`,
+      `${SITE_URL}/login`,
+      `${SITE_URL}/strategist?preview=1`,
+    ])
   })
 })

@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/components/AuthProvider'
 import MotionProvider from '@/components/MotionProvider'
+import { SITE_URL } from '@/lib/site'
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -10,10 +11,23 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
+const title = 'Creator Nexus — Influencer Budget Allocator'
+const description =
+  'Find the perfect mix of micro and nano-influencers for your D2C brand budget.'
+
 export const metadata: Metadata = {
-  title: 'Creator Nexus — Influencer Budget Allocator',
-  description:
-    'Find the perfect mix of micro and nano-influencers for your D2C brand budget.',
+  metadataBase: new URL(SITE_URL),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: '/',
+    siteName: 'Creator Nexus',
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image', title, description },
 }
 
 export default function RootLayout({

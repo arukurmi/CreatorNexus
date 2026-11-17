@@ -63,4 +63,25 @@ describe('Login page', () => {
     expect(screen.queryByText(/at least 8 characters/i)).toBeNull()
     expect(screen.queryByText('Invalid login credentials')).toBeNull()
   })
+
+  it('sends a reset link to /reset-password from forgot mode and shows a generic notice', async () => {
+    supabase = { auth }
+    auth.resetPasswordForEmail.mockResolvedValue({ error: null })
+    render(<LoginPage />)
+    fireEvent.click(screen.getByRole('button', { name: /forgot password/i }))
+    expect(screen.queryByLabelText('Password')).toBeNull()
+    expect(screen.getByRole('button', { name: /send reset link/i })).toBeInTheDocument()
+    fillAndSubmit({ email: 'a@brand.com' })
+    expect(await screen.findByText(/if an account exists for that email/i)).toBeInTheDocument()
+    expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('a@brand.com', {
+      redirectTo: expect.stringMatching(/\/reset-password$/),
+    })
+  })
+
+  it('returns from forgot mode to sign in', () => {
+    render(<LoginPage />)
+    fireEvent.click(screen.getByRole('button', { name: /forgot password/i }))
+    fireEvent.click(screen.getByRole('button', { name: /back to sign in/i }))
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
+  })
 })

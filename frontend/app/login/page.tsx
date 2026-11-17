@@ -9,7 +9,13 @@ import BrandCard from '@/components/BrandCard'
 import PasswordInput, { MIN_PASSWORD_LENGTH } from '@/components/PasswordInput'
 import { friendlyAuthError } from '@/lib/authErrors'
 
-type Mode = 'signin' | 'signup'
+type Mode = 'signin' | 'signup' | 'forgot'
+
+const SUBMIT_LABEL: Record<Mode, string> = {
+  signin: 'Sign In',
+  signup: 'Create Account',
+  forgot: 'Send reset link',
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,6 +26,12 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+
+  const switchMode = (next: Mode) => {
+    setMode(next)
+    setError(null)
+    setNotice(null)
+  }
 
   // Already signed in → go to dashboard
   useEffect(() => {
@@ -46,7 +58,13 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
-      if (mode === 'signup') {
+      if (mode === 'forgot') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        })
+        if (error) throw error
+        setNotice("If an account exists for that email, we've sent a reset link.")
+      } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
         setNotice(
@@ -75,11 +93,7 @@ export default function LoginPage() {
         {(['signin', 'signup'] as Mode[]).map((m) => (
           <button
             key={m}
-            onClick={() => {
-              setMode(m)
-              setError(null)
-              setNotice(null)
-            }}
+            onClick={() => switchMode(m)}
             className={`rounded-lg py-2 text-sm font-semibold transition-all ${
               mode === m
                 ? 'bg-white text-foreground shadow-sm'
@@ -121,19 +135,34 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div>
-          <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-foreground/80">
-            Password
-          </label>
-          <PasswordInput
-            id="password"
-            required
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-          />
-        </div>
+        {mode === 'forgot' ? (
+          <p className="text-xs text-muted-foreground">
+            Enter your account email and we&apos;ll send you a link to choose a new password.
+          </p>
+        ) : (
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-foreground/80">
+              Password
+            </label>
+            <PasswordInput
+              id="password"
+              required
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+            {mode === 'signin' && (
+              <button
+                type="button"
+                onClick={() => switchMode('forgot')}
+                className="mt-1.5 text-xs font-semibold text-primary hover:underline"
+              >
+                Forgot password?
+              </button>
+            )}
+          </div>
+        )}
 
         {error && (
           <p className="flex items-start gap-1.5 text-xs text-rose-600">
@@ -154,8 +183,17 @@ export default function LoginPage() {
           className="shadow-soft flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
         >
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {mode === 'signin' ? 'Sign In' : 'Create Account'}
+          {SUBMIT_LABEL[mode]}
         </button>
+        {mode === 'forgot' && (
+          <button
+            type="button"
+            onClick={() => switchMode('signin')}
+            className="w-full text-center text-xs font-semibold text-muted-foreground hover:text-foreground"
+          >
+            Back to sign in
+          </button>
+        )}
       </form>
     </BrandCard>
   )

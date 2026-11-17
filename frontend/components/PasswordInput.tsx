@@ -3,6 +3,8 @@
 import { useState, type ComponentProps } from 'react'
 import { Eye, EyeOff, Lock } from 'lucide-react'
 
+export const MIN_PASSWORD_LENGTH = 8
+
 export default function PasswordInput(props: Omit<ComponentProps<'input'>, 'type' | 'className'>) {
   const [visible, setVisible] = useState(false)
   const ToggleIcon = visible ? EyeOff : Eye

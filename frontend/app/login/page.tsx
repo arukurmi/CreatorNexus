@@ -6,7 +6,7 @@ import { Mail, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { useAuth } from '@/components/AuthProvider'
 import BrandCard from '@/components/BrandCard'
-import PasswordInput from '@/components/PasswordInput'
+import PasswordInput, { MIN_PASSWORD_LENGTH } from '@/components/PasswordInput'
 import { friendlyAuthError } from '@/lib/authErrors'
 
 type Mode = 'signin' | 'signup'
@@ -39,8 +39,8 @@ export default function LoginPage() {
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.')
+    if (mode === 'signup' && password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`)
       return
     }
 

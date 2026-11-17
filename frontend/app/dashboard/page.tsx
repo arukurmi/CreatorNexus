@@ -11,14 +11,15 @@ import MetricsLegend from '@/components/MetricsLegend'
 import BucketGrid from '@/components/BucketGrid'
 import BudgetHealth from '@/components/BudgetHealth'
 import WhySplit from '@/components/WhySplit'
+import SpendSummary from '@/components/SpendSummary'
 import { allocateViaApi } from '@/lib/api'
 import { getSupabase } from '@/lib/supabase/client'
+import type { TierStat } from '@/lib/tier'
 import { Niche, AllocationStrategy, Influencer, BucketResult, HealthFlag } from '@/lib/types'
 
 const DEFAULT_BUDGET = 50000
 const DEFAULT_NICHE: Niche = 'pets'
 
-interface TierStat { count: number; spend: number }
 interface ApiResult {
   selected: Influencer[]
   total_projected_spend: number
@@ -198,32 +199,19 @@ export default function DashboardPage() {
             </motion.div>
           )}
 
-          {/* Tier breakdown summary */}
-          {apiResult && !loading && (
+          {apiResult && !loading && !error && (
             <motion.div
-              className="mb-6 rounded-xl border border-border/50 bg-white/70 px-5 py-4"
+              className="mb-6"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35 }}
             >
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <span className="font-semibold text-foreground/70 uppercase tracking-wide text-xs">Tier breakdown</span>
-                {(['nano', 'micro', 'macro'] as const).map((tier) => {
-                  const stat = apiResult.by_tier[tier]
-                  return (
-                    <span key={tier} className="flex items-center gap-1.5">
-                      <span className="capitalize font-medium text-foreground/80">{tier}</span>
-                      <span className="text-muted-foreground">
-                        {stat.count} creator{stat.count !== 1 ? 's' : ''} · ₹{stat.spend.toLocaleString('en-IN')}
-                      </span>
-                    </span>
-                  )
-                })}
-                <span className="ml-auto flex items-center gap-3 text-muted-foreground">
-                  <span>Total spend: <strong className="text-foreground/80">₹{apiResult.total_projected_spend.toLocaleString('en-IN')}</strong></span>
-                  <span>Leftover: <strong className="text-foreground/80">₹{apiResult.leftover_budget.toLocaleString('en-IN')}</strong></span>
-                </span>
-              </div>
+              <SpendSummary
+                budget={applied.budget}
+                spend={apiResult.total_projected_spend}
+                leftover={apiResult.leftover_budget}
+                byTier={apiResult.by_tier}
+              />
             </motion.div>
           )}
 

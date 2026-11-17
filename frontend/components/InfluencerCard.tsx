@@ -5,6 +5,7 @@ import { Eye, Heart, Users, IndianRupee, ExternalLink, Check, MapPin, FlaskConic
 import { Influencer } from '@/lib/types'
 import { getTier, TIER_META } from '@/lib/tier'
 import { instagramUrl } from '@/lib/instagram'
+import { formatINR } from '@/lib/format'
 
 interface Props {
   influencer: Influencer
@@ -15,10 +16,6 @@ function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
   return String(n)
-}
-
-function formatINR(n: number): string {
-  return `₹${Math.round(n).toLocaleString('en-IN')}`
 }
 
 export default function InfluencerCard({ influencer, isSelected }: Props) {

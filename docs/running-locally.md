@@ -85,6 +85,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=     # from Supabase project settings
 
 When Supabase vars are blank, the dashboard runs in demo mode (auth disabled).
 
+`NEXT_PUBLIC_SITE_URL` (optional) is the public URL used in social previews, `/sitemap.xml` and `/robots.txt`. Leave it blank locally; it falls back to Vercel's production domain, then `http://localhost:3000`.
+
 See `frontend/.env.example` for the complete list.
 
 ### 2. Install and run

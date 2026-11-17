@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { Niche, AllocationStrategy } from '@/lib/types'
 import { NICHES } from '@/lib/niches'
-import { MIN_BUDGET, SLIDER_MAX_BUDGET } from '@/lib/budget'
+import { clampBudget, MAX_BUDGET, MIN_BUDGET, SLIDER_MAX_BUDGET } from '@/lib/budget'
 
 // Indian cities for the optional location filter (must match backend tags).
 const CITIES = [
@@ -73,6 +73,7 @@ export default function BudgetControls({
 }: Props) {
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [budgetDraft, setBudgetDraft] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const selectedIndex = Math.max(0, NICHES.findIndex((n) => n.value === niche))
   const selected = NICHES[selectedIndex]
@@ -80,6 +81,19 @@ export default function BudgetControls({
   const idPrefix = useId()
   const nicheOptionId = (i: number) => `${idPrefix}-niche-${NICHES[i].value}`
   const activeOptionId = open ? nicheOptionId(activeIndex) : undefined
+
+  function editBudgetDraft(value: string) {
+    setBudgetDraft(value)
+    const amount = Number(value)
+    if (value.trim() !== '' && amount >= MIN_BUDGET && amount <= MAX_BUDGET) onBudgetChange(clampBudget(amount))
+  }
+
+  function commitBudgetDraft() {
+    if (budgetDraft === null) return
+    const amount = Number(budgetDraft)
+    if (budgetDraft.trim() !== '' && !Number.isNaN(amount)) onBudgetChange(clampBudget(amount))
+    setBudgetDraft(null)
+  }
 
   function openNiches(index = selectedIndex) {
     setActiveIndex(index)
@@ -143,10 +157,20 @@ export default function BudgetControls({
               Total Budget
             </label>
             <div className="flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-1">
-              <IndianRupee className="h-3.5 w-3.5 text-primary" />
-              <span className="text-sm font-bold text-primary">
-                {budget.toLocaleString('en-IN')}
-              </span>
+              <IndianRupee aria-hidden className="h-3.5 w-3.5 text-primary" />
+              <input
+                type="number"
+                inputMode="numeric"
+                aria-label="Budget in rupees"
+                min={MIN_BUDGET}
+                max={MAX_BUDGET}
+                step={1000}
+                value={budgetDraft ?? budget}
+                onChange={(e) => editBudgetDraft(e.target.value)}
+                onBlur={commitBudgetDraft}
+                onKeyDown={(e) => e.key === 'Enter' && commitBudgetDraft()}
+                className="w-24 bg-transparent text-right text-sm font-bold text-primary"
+              />
             </div>
           </div>
           <input

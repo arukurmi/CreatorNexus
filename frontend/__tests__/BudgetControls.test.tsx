@@ -57,6 +57,38 @@ describe('BudgetControls', () => {
     expect(screen.getByLabelText(/city/i).tagName).toBe('SELECT')
   })
 
+  it('calls onBudgetChange live when a typed budget is in range', () => {
+    const props = setup()
+    fireEvent.change(screen.getByLabelText(/budget in rupees/i), { target: { value: '750000' } })
+    expect(props.onBudgetChange).toHaveBeenLastCalledWith(750000)
+  })
+
+  it('caps a typed budget above 1 crore at 10,000,000 on blur', () => {
+    const props = setup()
+    const input = screen.getByLabelText(/budget in rupees/i)
+    fireEvent.change(input, { target: { value: '20000000' } })
+    expect(props.onBudgetChange).not.toHaveBeenCalled()
+    fireEvent.blur(input)
+    expect(props.onBudgetChange).toHaveBeenCalledWith(10_000_000)
+  })
+
+  it('raises a typed budget below the minimum to 5,000 on Enter', () => {
+    const props = setup()
+    const input = screen.getByLabelText(/budget in rupees/i)
+    fireEvent.change(input, { target: { value: '100' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(props.onBudgetChange).toHaveBeenCalledWith(5000)
+  })
+
+  it('reverts an emptied budget input to the current budget on blur', () => {
+    const props = setup({ budget: 42000 })
+    const input = screen.getByLabelText(/budget in rupees/i)
+    fireEvent.change(input, { target: { value: '' } })
+    fireEvent.blur(input)
+    expect(props.onBudgetChange).not.toHaveBeenCalled()
+    expect(input).toHaveValue(42000)
+  })
+
   it('marks the active strategy as pressed', () => {
     setup({ strategy: 'value' })
     expect(screen.getByRole('button', { name: /best value/i })).toHaveAttribute('aria-pressed', 'true')

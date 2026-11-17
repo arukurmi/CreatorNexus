@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { motion } from 'framer-motion'
 import { FlaskConical } from 'lucide-react'
 import Header from '@/components/Header'
@@ -12,8 +12,10 @@ import BucketGrid from '@/components/BucketGrid'
 import BudgetHealth from '@/components/BudgetHealth'
 import WhySplit from '@/components/WhySplit'
 import SpendSummary from '@/components/SpendSummary'
+import HowItWorks from '@/components/HowItWorks'
 import { allocateViaApi } from '@/lib/api'
 import { getSupabase } from '@/lib/supabase/client'
+import { loadSavedFilters, saveFilters, type Filters } from '@/lib/savedFilters'
 import type { TierStat } from '@/lib/tier'
 import { Niche, AllocationStrategy, Influencer, BucketResult, HealthFlag } from '@/lib/types'
 
@@ -32,20 +34,31 @@ interface ApiResult {
   rationale: string[]
 }
 
-interface Filters {
-  budget: number
-  niche: Niche
-  strategy: AllocationStrategy
-  count: number
-  city: string
-}
-
 const DEFAULT_FILTERS: Filters = {
   budget: DEFAULT_BUDGET,
   niche: DEFAULT_NICHE,
   strategy: 'reach',
   count: 5,
   city: '',
+}
+
+const subscribeToNothing = () => () => {}
+
+async function fetchAllocation(filters: Filters, signal: AbortSignal) {
+  const token = (await getSupabase()?.auth.getSession())?.data.session?.access_token ?? ''
+  if (!token) throw new Error('Sign in to generate your allocation.')
+
+  return allocateViaApi<ApiResult>(
+    {
+      budget: filters.budget,
+      niche: filters.niche,
+      strategy: filters.strategy,
+      count: filters.strategy === 'count' ? filters.count : undefined,
+      city: filters.city.trim() || undefined,
+    },
+    token,
+    { signal },
+  )
 }
 
 export default function DashboardPage() {
@@ -57,32 +70,31 @@ export default function DashboardPage() {
   const [city, setCity] = useState(DEFAULT_FILTERS.city)
 
   // The filters actually sent to the API. Changing this (via Apply) triggers a fetch.
-  const [applied, setApplied] = useState<Filters>(DEFAULT_FILTERS)
+  /** undefined until localStorage is read after mount (keeps SSR markup stable); null means nothing requested yet. */
+  const [applied, setApplied] = useState<Filters | null | undefined>(undefined)
 
   const [apiResult, setApiResult] = useState<ApiResult | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchAllocation = useCallback(async (signal: AbortSignal) => {
-    const token = (await getSupabase()?.auth.getSession())?.data.session?.access_token ?? ''
-    if (!token) throw new Error('Sign in to generate your allocation.')
-
-    return allocateViaApi<ApiResult>(
-      {
-        budget: applied.budget,
-        niche: applied.niche,
-        strategy: applied.strategy,
-        count: applied.strategy === 'count' ? applied.count : undefined,
-        city: applied.city.trim() || undefined,
-      },
-      token,
-      { signal },
-    )
-  }, [applied])
+  const isClient = useSyncExternalStore(subscribeToNothing, () => true, () => false)
+  if (isClient && applied === undefined) {
+    const saved = loadSavedFilters()
+    setApplied(saved)
+    if (saved) {
+      setBudget(saved.budget)
+      setNiche(saved.niche)
+      setStrategy(saved.strategy)
+      setCount(saved.count)
+      setCity(saved.city)
+      setLoading(true)
+    }
+  }
 
   useEffect(() => {
+    if (!applied) return
     const controller = new AbortController()
-    fetchAllocation(controller.signal)
+    fetchAllocation(applied, controller.signal)
       .then(setApiResult)
       .catch((err) => {
         if (err instanceof Error && err.name === 'AbortError') return
@@ -90,10 +102,11 @@ export default function DashboardPage() {
       })
       .finally(() => setLoading(false))
     return () => controller.abort()
-  }, [fetchAllocation])
+  }, [applied])
 
   // Have the draft inputs diverged from what's currently shown?
   const dirty =
+    !applied ||
     budget !== applied.budget ||
     niche !== applied.niche ||
     strategy !== applied.strategy ||
@@ -101,6 +114,7 @@ export default function DashboardPage() {
     city !== applied.city
 
   const requestAllocation = useCallback((filters: Filters) => {
+    saveFilters(filters)
     setLoading(true)
     setError(null)
     setApplied(filters)
@@ -148,6 +162,8 @@ export default function DashboardPage() {
               maximum reach.
             </p>
           </motion.div>
+
+          {applied === null && <HowItWorks onStart={applyFilters} />}
 
           {/* Controls */}
           <div className="mb-8">
@@ -199,7 +215,7 @@ export default function DashboardPage() {
             </motion.div>
           )}
 
-          {apiResult && !loading && !error && (
+          {apiResult && applied && !loading && !error && (
             <motion.div
               className="mb-6"
               initial={{ opacity: 0, y: -8 }}
@@ -223,7 +239,7 @@ export default function DashboardPage() {
           )}
 
           {/* Error state */}
-          {error && !loading && (
+          {error && applied && !loading && (
             <motion.div
               className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700"
               initial={{ opacity: 0 }}
@@ -259,7 +275,7 @@ export default function DashboardPage() {
           <MetricsLegend />
 
           {/* Results */}
-          {!loading && !error && (
+          {applied && !loading && !error && (
             <BucketGrid allInfluencers={allInfluencers} result={bucketResult} />
           )}
         </main>

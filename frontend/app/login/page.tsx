@@ -6,6 +6,7 @@ import { Mail, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { useAuth } from '@/components/AuthProvider'
 import BrandCard from '@/components/BrandCard'
+import { friendlyAuthError } from '@/lib/authErrors'
 
 type Mode = 'signin' | 'signup'
 
@@ -60,7 +61,7 @@ export default function LoginPage() {
         router.replace('/dashboard')
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.')
+      setError(friendlyAuthError(err))
     } finally {
       setSubmitting(false)
     }

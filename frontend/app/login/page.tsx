@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { Mail, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { useAuth } from '@/components/AuthProvider'
+import BrandCard from '@/components/BrandCard'
 
 type Mode = 'signin' | 'signup'
 
@@ -67,118 +67,98 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <motion.div
-        className="shadow-card w-full max-w-md rounded-3xl bg-white/70 p-8 ring-1 ring-border/60 backdrop-blur-sm"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-      >
-        {/* Brand */}
-        <div className="mb-6 flex items-center gap-3">
-          <span className="shadow-soft flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-lg font-bold text-white">
-            🐐
+    <BrandCard>
+      {/* Tabs */}
+      <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
+        {(['signin', 'signup'] as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => {
+              setMode(m)
+              setError(null)
+              setNotice(null)
+            }}
+            className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+              mode === m
+                ? 'bg-white text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground/80'
+            }`}
+          >
+            {m === 'signin' ? 'Sign In' : 'Sign Up'}
+          </button>
+        ))}
+      </div>
+
+      {!isSupabaseConfigured && (
+        <div className="mb-4 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-700 ring-1 ring-amber-200">
+          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <span>
+            Auth backend not configured. Add your Supabase URL + anon key to{' '}
+            <code className="font-mono">.env.local</code> to enable real sign
+            up / sign in.
           </span>
-          <div className="leading-none">
-            <p className="text-lg font-bold text-foreground">Creator Nexus</p>
-            <p className="text-xs text-muted-foreground">
-              Allocate budgets to the right creators
-            </p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-foreground/80">
+            Email
+          </label>
+          <div className="relative">
+            <Mail aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@brand.com"
+              className="w-full rounded-xl border border-input bg-white/60 py-2.5 pl-10 pr-3 text-sm text-foreground transition focus:border-primary"
+            />
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
-          {(['signin', 'signup'] as Mode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => {
-                setMode(m)
-                setError(null)
-                setNotice(null)
-              }}
-              className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                mode === m
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground/80'
-              }`}
-            >
-              {m === 'signin' ? 'Sign In' : 'Sign Up'}
-            </button>
-          ))}
+        <div>
+          <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-foreground/80">
+            Password
+          </label>
+          <div className="relative">
+            <Lock aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full rounded-xl border border-input bg-white/60 py-2.5 pl-10 pr-3 text-sm text-foreground transition focus:border-primary"
+            />
+          </div>
         </div>
 
-        {!isSupabaseConfigured && (
-          <div className="mb-4 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-700 ring-1 ring-amber-200">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <span>
-              Auth backend not configured. Add your Supabase URL + anon key to{' '}
-              <code className="font-mono">.env.local</code> to enable real sign
-              up / sign in.
-            </span>
-          </div>
+        {error && (
+          <p className="flex items-start gap-1.5 text-xs text-rose-600">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+            {error}
+          </p>
+        )}
+        {notice && (
+          <p className="flex items-start gap-1.5 text-xs text-green-700">
+            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+            {notice}
+          </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-foreground/80">
-              Email
-            </label>
-            <div className="relative">
-              <Mail aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@brand.com"
-                className="w-full rounded-xl border border-input bg-white/60 py-2.5 pl-10 pr-3 text-sm text-foreground transition focus:border-primary"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-foreground/80">
-              Password
-            </label>
-            <div className="relative">
-              <Lock aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-input bg-white/60 py-2.5 pl-10 pr-3 text-sm text-foreground transition focus:border-primary"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <p className="flex items-start gap-1.5 text-xs text-rose-600">
-              <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              {error}
-            </p>
-          )}
-          {notice && (
-            <p className="flex items-start gap-1.5 text-xs text-green-700">
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              {notice}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="shadow-soft flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-          >
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {mode === 'signin' ? 'Sign In' : 'Create Account'}
-          </button>
-        </form>
-      </motion.div>
-    </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="shadow-soft flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+        >
+          {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+          {mode === 'signin' ? 'Sign In' : 'Create Account'}
+        </button>
+      </form>
+    </BrandCard>
   )
 }

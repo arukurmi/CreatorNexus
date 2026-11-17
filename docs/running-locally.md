@@ -174,6 +174,19 @@ cd frontend && npm test
 
 Both test suites use **Vitest 5**, which needs Node 22.12 or newer. No real Supabase/Upstash/RapidAPI connection is needed — tests inject stubs via exported seams (`__setVerifier`, `setRepos`).
 
+### Frontend smoke tests (Playwright)
+
+`frontend/e2e/` holds browser smoke tests for the landing, login, strategist preview and 404 pages, plus `/robots.txt` and `/sitemap.xml`. They run against a production build served on port **3107**:
+
+```bash
+cd frontend
+npx playwright install chromium   # first time only
+npm run build
+npm run test:e2e
+```
+
+Set `E2E_PORT=<port>` to use another port. There is no CI yet, so run them locally before a release.
+
 ---
 
 ## Authentication Note

@@ -43,3 +43,17 @@ describe('BucketGrid pagination', () => {
     expect(screen.queryByRole('button', { name: /show .* more/i })).toBeNull()
   })
 })
+
+describe('BucketGrid summary', () => {
+  it('shows the projected spend when it is known', () => {
+    render(<BucketGrid allInfluencers={nano.slice(0, 3)} result={result} />)
+    expect(screen.getByText('Projected Spend')).toBeInTheDocument()
+    expect(screen.getByText('₹2,250')).toBeInTheDocument()
+  })
+
+  it('omits the projected spend tile when the result has none', () => {
+    const withoutSpend: BucketResult = { selected_influencers: result.selected_influencers, leftover_budget: 0 }
+    render(<BucketGrid allInfluencers={nano.slice(0, 3)} result={withoutSpend} />)
+    expect(screen.queryByText('Projected Spend')).toBeNull()
+  })
+})

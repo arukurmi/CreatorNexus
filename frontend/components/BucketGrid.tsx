@@ -49,7 +49,7 @@ export default function BucketGrid({ allInfluencers, result }: Props) {
     <div>
       {/* Summary bar */}
       <motion.div
-        className="shadow-soft mb-6 grid grid-cols-3 gap-3 rounded-2xl bg-white/60 p-5 ring-1 ring-border/50 backdrop-blur-sm"
+        className={`shadow-soft mb-6 grid ${result.total_projected_spend === undefined ? 'grid-cols-2' : 'grid-cols-3'} gap-3 rounded-2xl bg-white/60 p-5 ring-1 ring-border/50 backdrop-blur-sm`}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut', delay: 0.2 }}
@@ -59,11 +59,13 @@ export default function BucketGrid({ allInfluencers, result }: Props) {
           label="Creators in Bucket"
           value={String(result.selected_influencers.length)}
         />
-        <SummaryItem
-          icon={<IndianRupee className="h-4 w-4 text-primary" />}
-          label="Projected Spend"
-          value={`₹${Math.round(result.total_projected_spend).toLocaleString('en-IN')}`}
-        />
+        {result.total_projected_spend !== undefined && (
+          <SummaryItem
+            icon={<IndianRupee className="h-4 w-4 text-primary" />}
+            label="Projected Spend"
+            value={`₹${Math.round(result.total_projected_spend).toLocaleString('en-IN')}`}
+          />
+        )}
         <SummaryItem
           icon={<TrendingUp className="h-4 w-4 text-primary" />}
           label="Est. Total Views"

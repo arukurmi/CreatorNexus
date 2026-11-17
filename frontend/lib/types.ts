@@ -43,7 +43,7 @@ export interface Influencer {
 
 export interface BucketResult {
   selected_influencers: Influencer[]
-  total_projected_spend: number
+  total_projected_spend?: number
   leftover_budget: number
 }
 

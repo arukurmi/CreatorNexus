@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import sitemap from '../app/sitemap'
+import robots from '../app/robots'
 import { SITE_URL } from '../lib/site'
 
 async function loadSiteUrl(env: Record<string, string>) {
@@ -40,5 +41,14 @@ describe('sitemap', () => {
       `${SITE_URL}/login`,
       `${SITE_URL}/strategist?preview=1`,
     ])
+  })
+})
+
+describe('robots', () => {
+  it('allows the site, blocks the dashboard and reset-password, and points at the sitemap', () => {
+    expect(robots()).toEqual({
+      rules: { userAgent: '*', allow: '/', disallow: ['/dashboard', '/reset-password'] },
+      sitemap: `${SITE_URL}/sitemap.xml`,
+    })
   })
 })

@@ -97,6 +97,17 @@ npm run dev   # Next.js dev server, port 3000
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### 3. Allow the password-reset redirect
+
+"Forgot password?" emails a link back to `/reset-password`. Supabase only follows redirect URLs it has been told to trust; any other URL is replaced by the project's **Site URL**, so the link lands on the wrong page.
+
+In the Supabase dashboard → **Authentication** → **URL Configuration** → **Redirect URLs**, add:
+
+- `http://localhost:3000/reset-password`
+- your production frontend's `/reset-password` URL, e.g. `https://creator-nexus.vercel.app/reset-password`
+
+The app asks for at least 8 characters on sign-up and reset. To enforce the same on the server, set **Minimum password length** to 8 in the **Email** provider settings under **Authentication**.
+
 ---
 
 ## Fallback vs RapidAPI Mode

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }))
 vi.mock('@/components/AuthProvider', () => ({ useAuth: () => ({ user: null, loading: false }) }))
@@ -10,7 +10,18 @@ import LoginPage from '@/app/login/page'
 describe('Login page', () => {
   it('labels the email and password inputs', () => {
     render(<LoginPage />)
-    expect(screen.getByLabelText(/email/i)).toHaveAttribute('type', 'email')
-    expect(screen.getByLabelText(/password/i)).toHaveAttribute('type', 'password')
+    expect(screen.getByLabelText('Email')).toHaveAttribute('type', 'email')
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password')
+  })
+
+  it('toggles password visibility with the show-password button', () => {
+    render(<LoginPage />)
+    const toggle = screen.getByRole('button', { name: 'Show password' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(toggle)
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'text')
+    expect(toggle).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(toggle)
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password')
   })
 })

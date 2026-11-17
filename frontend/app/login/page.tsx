@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Mail, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { useAuth } from '@/components/AuthProvider'
 import BrandCard from '@/components/BrandCard'
+import PasswordInput from '@/components/PasswordInput'
 import { friendlyAuthError } from '@/lib/authErrors'
 
 type Mode = 'signin' | 'signup'
@@ -124,18 +125,14 @@ export default function LoginPage() {
           <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-foreground/80">
             Password
           </label>
-          <div className="relative">
-            <Lock aria-hidden className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-input bg-white/60 py-2.5 pl-10 pr-3 text-sm text-foreground transition focus:border-primary"
-            />
-          </div>
+          <PasswordInput
+            id="password"
+            required
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
         </div>
 
         {error && (

@@ -65,6 +65,7 @@ swapping the Supabase anon stand-in for the real service-role key if you want hi
 2. **On the frontend (Vercel)** set `NEXT_PUBLIC_API_BASE` = the Render backend URL, and deploy → note the Vercel URL.
 3. **Back on Render** set `CORS_ORIGIN` = the Vercel frontend URL and **redeploy** the backend.
 4. Apply `docs/db-schema.sql` in Supabase (once) so brands/campaigns persist. An existing project also needs each file in `docs/migrations/` (see `running-locally.md`).
+5. In Supabase → **Authentication** → **URL Configuration** → **Redirect URLs**, add `<your Vercel URL>/reset-password`, or password-reset emails link to the Site URL instead (see `running-locally.md`).
 
 ## Verify
 

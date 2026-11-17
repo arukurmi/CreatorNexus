@@ -59,7 +59,7 @@ Full setup guide (env vars, DB schema, auth notes, test commands):
 | Rate limiting / cache | Upstash Redis |
 | Influencer data | RapidAPI Instagram endpoint (+ generated fallback) |
 | Database | Supabase Postgres |
-| Testing | Vitest (both apps) |
+| Testing | Vitest (both apps), Playwright smoke tests (frontend) |
 
 ---
 
@@ -68,7 +68,12 @@ Full setup guide (env vars, DB schema, auth notes, test commands):
 ```bash
 cd backend && npm test
 cd frontend && npm test
+
+# Frontend browser smoke tests (Playwright, port 3107; override with E2E_PORT)
+cd frontend && npx playwright install chromium && npm run build && npm run test:e2e
 ```
+
+There is no CI yet, so the smoke tests run locally.
 
 ---
 

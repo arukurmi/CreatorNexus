@@ -43,6 +43,15 @@ describe('AI Strategist page', () => {
     fetchSpy.mockRestore()
   })
 
+  it('fills the brief from an example chip and clears the error', () => {
+    render(<StrategistPage />)
+    fireEvent.click(screen.getByRole('button', { name: /get ai recommendations/i }))
+    expect(screen.getByText(/describe your campaign/i)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /protein bar launch/i }))
+    expect((screen.getByRole('textbox') as HTMLTextAreaElement).value).toMatch(/vegan protein bar/)
+    expect(screen.queryByText(/describe your campaign/i)).toBeNull()
+  })
+
   it('explains the hourly AI limit when the backend answers 429', async () => {
     getAiStrategy.mockRejectedValueOnce(Object.assign(new Error('ai strategy failed: 429'), { status: 429 }))
     render(<StrategistPage />)

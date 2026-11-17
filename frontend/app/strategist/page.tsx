@@ -32,6 +32,21 @@ const PREVIEW_RESULT: AiResult = {
   creators: PREVIEW_CREATORS,
 }
 
+const EXAMPLE_BRIEFS = [
+  {
+    label: 'Protein bar launch',
+    brief: 'We\'re launching a ₹60 vegan protein bar for gym-goers aged 20–30 in Bengaluru, Pune and Hyderabad. Goal: trial and repeat orders on our website. Budget ₹75k for one month.',
+  },
+  {
+    label: 'Ayurvedic hair oil',
+    brief: 'D2C ayurvedic hair oil brand targeting working women 25–40 in Tier-2 cities. We want honest before/after reviews in Hindi and Tamil to build trust. Budget ₹1.5 lakh.',
+  },
+  {
+    label: 'Festive sneaker drop',
+    brief: 'Sustainable sneaker label made from recycled plastic, aimed at Gen-Z in Mumbai and Delhi. Awareness push for our Diwali drop with a premium-but-affordable vibe. Budget ₹50k.',
+  },
+]
+
 /** useSearchParams needs a Suspense boundary or `next build` fails to prerender this page. */
 export default function StrategistPage() {
   return (
@@ -95,6 +110,19 @@ function Strategist() {
               placeholder="e.g. We're launching a vegan skincare line for Gen-Z in metro cities. Goal: awareness + trust, premium-but-affordable vibe…"
               className="w-full resize-y rounded-xl border border-input bg-white/70 p-4 text-sm text-foreground transition focus:border-primary"
             />
+            <div role="group" aria-labelledby="example-briefs-label" className="mt-3 flex flex-wrap items-center gap-2">
+              <span id="example-briefs-label" className="text-xs font-semibold text-foreground/70">Try an example:</span>
+              {EXAMPLE_BRIEFS.map((example) => (
+                <button
+                  key={example.label}
+                  type="button"
+                  onClick={() => { setBrief(example.brief); setError(null) }}
+                  className="rounded-full border border-border bg-white/70 px-3 py-1 text-xs font-medium text-foreground/70 transition hover:border-primary/40 hover:text-primary"
+                >
+                  {example.label}
+                </button>
+              ))}
+            </div>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{brief.length}/4000</span>
               <button
